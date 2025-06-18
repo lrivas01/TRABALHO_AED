@@ -1,0 +1,20 @@
+#ifndef _ERROS_H
+#define _ERROS_H
+
+typedef enum {
+	SUCESSO = 0,
+
+	// Erros de arquivo genéricos
+	ERRO_ARQUIVO_SEEK	= -1,
+	ERRO_ARQUIVO_WRITE	= -2,
+	ERRO_ARQUIVO_READ	= -3,
+
+	// Erros específicos
+	ERRO_ABRIR_ARQUIVO	= -10,
+	ERRO_LER_CABECALHO	= -11,
+	ERRO_ESCREVER_CABECALHO = -12,
+	ERRO_LER_USUARIO	= -13,
+	ERRO_ESCREVER_USUARIO	= -14,
+} codigo_erro;
+
+#endif // _ERROS_H
