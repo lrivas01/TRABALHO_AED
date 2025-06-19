@@ -3,11 +3,12 @@ project(TRABALHO_AED C)
 
 set(CMAKE_C_STANDARD 11)
 
-include_directories(TrabalhoBiblioteca/include)
+# Inclui os diretórios de headers
+include_directories(include)
+include_directories(src)
 
+# Adiciona o executável com os arquivos fonte
 add_executable(TRABALHO_AED
-        TrabalhoBiblioteca/include/livro.h
-        TrabalhoBiblioteca/src/livro.c
-        TrabalhoBiblioteca/src/main.c
-        TrabalhoBiblioteca/include/arquivo.h
-        TrabalhoBiblioteca/src/arquivo.c)
+        src/livro.c
+        src/arquivo.c
+)

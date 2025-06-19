@@ -1,0 +1,16 @@
+# Ignora pasta de configuração da JetBrains
+.idea/
+
+# Ignora arquivos de build do CLion
+cmake-build-*/
+
+# Ignora arquivos do sistema
+*.DS_Store
+*.log
+
+# Ignora arquivos de backup do editor
+*~
+
+# Ignora arquivos temporários
+*.tmp
+*.swp
