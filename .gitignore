@@ -3,6 +3,7 @@
 
 # Ignora arquivos de build do CLion
 cmake-build-*/
+CMakeLists.txt
 
 # Ignora arquivos do sistema
 *.DS_Store
