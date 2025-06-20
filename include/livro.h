@@ -30,48 +30,6 @@ typedef struct {
     int prox;
 } LIVRO;
 
-
-
-
-/*
- * le_no_livro - le um no em uma determinada posicao do arquivo
- *
- * @arq - ponteiro para arquivo binário aberto em modo leitura/escrita
- * @pos - posição lógica do livro na lista (índice relativo ao início dos registros)
- *
-* Pré-condições:
- *   - O arquivo deve estar aberto corretamente para leitura ou leitura/escrita
- *   - A posição deve ser válida (não negativa e dentro dos limites do arquivo)
- *
- * Pós-condições:
- *   - Um ponteiro para a estrutura LIVRO preenchida com os dados da posição indicada é retornado
- *   - Em caso de erro (malloc, fseek ou fread), retorna NULL
- */
-LIVRO* le_no_livro(FILE* arq, int pos);
-
-
-
-/*
- * escreve_no_livro - Escreve um nó do tipo LIVRO em uma posição lógica do arquivo binário
- *
- * @arq   - ponteiro para arquivo binário aberto em modo leitura/escrita
- * @livro - ponteiro para estrutura LIVRO contendo os dados a serem gravados
- * @pos   - posição lógica (índice) onde os dados devem ser gravados
- *
- * Pré-condições:
- *   - O arquivo deve estar aberto em modo leitura/escrita
- *   - A posição deve ser válida
- *   - O ponteiro livro deve apontar para uma estrutura válida e inicializada
- *
- * Pós-condições:
- *   - Os dados da estrutura LIVRO são gravados na posição especificada no arquivo
- *   - Retorna 0 em caso de sucesso
- *   - Retorna código de erro (< 0) em caso de falha (por exemplo: erro de fseek ou fwrite)
- */
-
-int escreve_no_livro(FILE* arq,LIVRO* livro,int pos);
-
-
 /*
  * cadastrar_livro - Insere um novo livro na lista encadeada mantida em arquivo binário
  *
@@ -87,8 +45,8 @@ int escreve_no_livro(FILE* arq,LIVRO* livro,int pos);
  *   - O campo pos_cabeca do cabeçalho é atualizado
  *   - Se houver espaço livre disponível, ele é reutilizado
  *   - Se não houver, o livro é inserido na posição final (pos_topo é incrementado)
- *   - retorno 0 em caso de sucesso
- *   - retorna Código de erro negativo em caso de falhas (ex: erro ao abrir, ler, ou escrever)
+ *   - retorno SUCESSO (0) em caso de sucesso
+ *   - retorna código de erro negativo em caso de falhas (ex: erro ao abrir, ler, ou escrever)
  */
 int cadastrar_livro(const char *nome_arq, LIVRO livro);
 
@@ -103,42 +61,44 @@ int cadastrar_livro(const char *nome_arq, LIVRO livro);
  *
  * Pós-condições:
  *   - Os dados do livro com o código fornecido são impressos na tela, se encontrado
- *   - Retorna 0 em caso de sucesso
- *   - Retorna Código de erro negativo se não encontrado ou ocorrer erro de leitura
+ *   - Retorna SUCESSO (0) em caso de sucesso
+ *   - Retorna código de erro negativo se não encontrado ou ocorrer erro de leitura
  */
 int imprimir_livro(const char *nome_arq, int codigo);
 
 /*
- * listar_Todos - Lista todos os livros cadastrados na lista encadeada do arquivo
+ * listar_todos_livros - Lista todos os livros cadastrados na lista encadeada do arquivo
  *
  * @nome_arq - nome do arquivo binário contendo os livros
  *
  * Pré-condições:
- *   - O arquivo deve estar aberto para leitura
+ *   - O arquivo pode ser aberto para leitura
  *
  * Pós-condições:
  *   - Os dados de todos os livros (em ordem lógica) são impressos na tela
+ *   - Retorna SUCESSO (0) em caso de sucesso
+ *   - Retorna valor negativo em caso de erro
  */
-int listar_todos(const char *nome_arq);
+int listar_todos_livros(const char *nome_arq);
 
 /*
- * buscar_Autor - Lista todos os livros escritos por um autor específico
+ * buscar_autor_livro - Lista todos os livros escritos por um autor específico
  *
  * @nome_arq - nome do arquivo binário contendo os livros
  * @autor    - nome do autor a ser buscado
  *
  * Pré-condições:
- *   - O arquivo deve estar aberto para leitura
+ *   - O arquivo pode ser aberto para leitura
  *
  * Pós-condições:
  *   - Títulos dos livros do autor são impressos na tela
- *   - Retorna 0 em caso de sucesso
- *   - Retorna Código de erro negativo se não encontrado ou ocorrer erro de leitura
+ *   - Retorna SUCESSO (0) em caso de sucesso
+ *   - Retorna código negativo em caso de erro
  */
-int buscar_autor(const char *nome_arq, const char *autor);
+int buscar_autor_livro(const char *nome_arq, const char *autor);
 
 /*
- * buscar_Titulo - Busca e imprime os dados de um livro com base no título
+ * buscar_titulo_livro - Busca e imprime os dados de um livro com base no título
  *
  * @nome_arq - nome do arquivo binário contendo os livros
  * @titulo   - título do livro a ser buscado
@@ -148,9 +108,9 @@ int buscar_autor(const char *nome_arq, const char *autor);
  *
  * Pós-condições:
  *   - Dados do livro encontrado são exibidos na tela
- *   - Retorna 0 em caso de sucesso
- *   - Retorna Código de erro negativo se não encontrado ou ocorrer erro de leitura
+ *   - Retorna SUCESSO (0) em caso de sucesso
+ *   - Retorna código de erro negativo se não encontrado ou ocorrer erro de leitura
  */
-int buscar_titulo(const char *nome_arq, const char *titulo);
+int buscar_titulo_livro(const char *nome_arq, const char *titulo);
 
 #endif
