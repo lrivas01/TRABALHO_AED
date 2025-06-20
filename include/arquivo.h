@@ -1,6 +1,7 @@
 #ifndef ARQUIVO_H
 #define ARQUIVO_H
 #include<stdio.h>
+
 /*
  * CABECALHO - struct que armazena dados de controle da lista encadeada em arquivo
  *
@@ -17,7 +18,7 @@ typedef struct CABECALHO {
 /*
  * le_cabecalho - funcao que le o cabecalho do arquivo com as informacoes da lista
  *
-    * @arq - ponteiro para arquivo binário aberto em modo leitura/escrita
+ * @arq - ponteiro para arquivo binário aberto em modo leitura/escrita
  *
  * Pré-condições:
  *	- O arquivo deve estar aberto e ser um arquivo da lista.
@@ -26,7 +27,7 @@ typedef struct CABECALHO {
  *	- Retorna um ponteiro para a estrutura CABECALHO.
  *	- Em caso de erro (falha em fseek, fread ou malloc), retorna NULL.
  */
-CABECALHO* le_cabecalho(FILE * arq);
+CABECALHO* le_cabecalho(FILE* arq);
 
 /*
  * escreve_cabecalho - Sobrescreve o cabeçalho do arquivo binário com nova estrutura
@@ -43,7 +44,7 @@ CABECALHO* le_cabecalho(FILE * arq);
  *   - Retorna 0  em caso de sucesso
  *   - Retorna valor negativo caso ocorra erro
  */
-int escreve_cabecalho(FILE* arq,CABECALHO* cab);
+int escreve_cabecalho(FILE* arq, CABECALHO* cab);
 
 /*
  * cria_lista_vazia - Inicializa um arquivo binário com uma lista encadeada vazia
@@ -60,4 +61,5 @@ int escreve_cabecalho(FILE* arq,CABECALHO* cab);
  *   - Retorno negativo caso erro
  */
 int cria_lista_vazia(FILE* arq);
+
 #endif //ARQUIVO_H
