@@ -1,12 +1,10 @@
 #include "livro.h"
-//#include"utils.h
 #include"arquivo.h"
-
+#include"erros.h"
 
 #include <stdlib.h>
 #include<string.h>
 #include <stdio.h>
-#include <stddef.h>
 
 
 /*
@@ -25,8 +23,12 @@
  */
 LIVRO* le_no_livro(FILE *arq, int pos) {
     LIVRO *livro = malloc(sizeof(LIVRO));
-    if (!livro) return NULL;
-    fseek(arq, sizeof(CABECALHO)+pos*sizeof(LIVRO), SEEK_SET);
+    if (!livro)
+        return NULL;
+    if(fseek(arq, sizeof(CABECALHO)+pos*sizeof(LIVRO), SEEK_SET)!=0) {
+        free(livro);
+        return NULL;
+    }
     if (fread(livro, sizeof(LIVRO), 1, arq) != 1) {
         free(livro);
         return NULL;
@@ -53,12 +55,11 @@ LIVRO* le_no_livro(FILE *arq, int pos) {
  */
 int escreve_no_livro(FILE* arq,LIVRO* livro,int pos){
     if (fseek(arq, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET) != 0)
-        return -1;
+        return ERRO_ARQUIVO_SEEK;
     if (fwrite(livro, sizeof(LIVRO), 1, arq) != 1) {
-        return -2;
+        return ERRO_ARQUIVO_WRITE;
     }
-
-
+    return SUCESSO;
 }
 
 /*
@@ -81,19 +82,21 @@ int escreve_no_livro(FILE* arq,LIVRO* livro,int pos){
  */
 int cadastrar_livro(const char *nome_arquivo, LIVRO novo) {
     FILE *arq = fopen(nome_arquivo, "rb+");
-    if (!arq) return -10;
+    if (!arq) return ERRO_ABRIR_ARQUIVO;
 
     CABECALHO *cab = le_cabecalho(arq);
     if (!cab) {
         fclose(arq);
-        return -11;
+        return ERRO_LER_CABECALHO;
     }
 
     int nova_pos;
     if (cab->pos_livre == -1) {
         // Sem espaço livre: insere no final
         nova_pos = cab->pos_topo;
-        fseek(arq, 0, SEEK_END);
+        if(fseek(arq, 0, SEEK_END)!=0) {
+            free(cab);
+            return ERRO_ARQUIVO_SEEK;
     } else {
         // Reaproveita espaço
         nova_pos = cab->pos_livre;
@@ -101,7 +104,7 @@ int cadastrar_livro(const char *nome_arquivo, LIVRO novo) {
         if (livro_removido==NULL) {
             free(cab);
             fclose(arq);
-            return -2;
+            return ERRO_ARQUIVO_READ;
         }
         cab->pos_livre = livro_removido->prox;
         free(livro_removido);
@@ -109,90 +112,28 @@ int cadastrar_livro(const char *nome_arquivo, LIVRO novo) {
 
     // Inserção no início da lista encadeada
     novo.prox = cab->pos_cabeca;
-    escreve_no_livro(arq, &novo, nova_pos);
+    if (escreve_no_livro(arq, &novo, nova_pos) != 0) {
+        free(cab);
+        fclose(arq);
+        return ERRO_ARQUIVO_WRITE;
+    }
 
     cab->pos_cabeca = nova_pos;
 
     if (nova_pos == cab->pos_topo)
         cab->pos_topo++;
 
-    escreve_cabecalho(arq, cab);
+    if (escreve_cabecalho(arq, cab) != 0) {
+        free(cab);
+        fclose(arq);
+        return ERRO_ESCREVER_CAB;
+    }
 
     free(cab);
     fclose(arq);
-    return 0;
+    return SUCESSO;
 }
 
-/*
- * remover_livro - Remove um livro da lista lógica e o encadeia na lista de posições livres
- *
- * @nome_arq - nome do arquivo binário contendo os livros
- * @codigo   - código do livro a ser removido
- *
- * Pré-condições:
- *   - O arquivo deve estar aberto para leitura e escrita
- *   - O cabeçalho deve estar corretamente configurado
- *
- * Pós-condições:
- *   - O livro é removido da lista lógica (encadeamento é ajustado)
- *   - A posição do livro é adicionada à lista de espaços livres
- *
- * Retorno:
- *   - 0 em caso de sucesso
- *   - Código de erro negativo em caso de falha
- */
-int remover_livro(const char *nome_arquivo, int codigo) {
-    FILE *arquivo = fopen(nome_arquivo, "rb+");
-    if (!arquivo)return -10;
-    CABECALHO cabecalho;
-    if (fread(&cabecalho, sizeof(CABECALHO), 1, arquivo) != 1) {
-        fclose(arquivo);
-        return -11;
-    }
-
-    int pos_atual = cabecalho.pos_cabeca;
-    int pos_anterior = -1;
-    LIVRO livro;
-
-    while (pos_atual != -1) {
-        fseek(arquivo, sizeof(CABECALHO) + pos_atual * sizeof(LIVRO), SEEK_SET);
-        if (fread(&livro, sizeof(LIVRO), 1, arquivo) != 1) {
-            fclose(arquivo);
-            return -3;
-        }
-
-        if (livro.codigo == codigo) {
-            if (pos_anterior == -1) {
-                // Primeiro elemento é o que será removido
-                cabecalho.pos_cabeca = livro.prox;
-            } else {
-                // Atualiza o anterior para pular o atual
-                fseek(arquivo, sizeof(CABECALHO) + pos_anterior * sizeof(LIVRO) + offsetof(LIVRO, prox), SEEK_SET);
-                fwrite(&livro.prox, sizeof(int), 1, arquivo);
-            }
-
-            // Encadeia o elemento removido na lista de livres
-            livro.prox = cabecalho.pos_livre;
-            fseek(arquivo, sizeof(CABECALHO) + pos_atual * sizeof(LIVRO), SEEK_SET);
-            fwrite(&livro, sizeof(LIVRO), 1, arquivo);
-
-            cabecalho.pos_livre = pos_atual;
-
-            fseek(arquivo, 0, SEEK_SET);
-            fwrite(&cabecalho, sizeof(CABECALHO), 1, arquivo);
-
-            fclose(arquivo);
-            printf("Livro com código %d removido com sucesso.\n", codigo);
-            return 0;
-        }
-
-        pos_anterior = pos_atual;
-        pos_atual = livro.prox;
-    }
-
-    fclose(arquivo);
-    return -1;
-}
 
 /*
  * imprimir_livro - Imprime os dados de um livro com base no código fornecido
@@ -209,40 +150,43 @@ int remover_livro(const char *nome_arquivo, int codigo) {
  *   - Retorna Código de erro negativo se não encontrado ou ocorrer erro de leitura
  */
 int imprimir_livro(const char *nome_arq, int codigo) {
-    FILE *arquivo = fopen(nome_arq, "rb");
-    if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
-        return -10;
+    FILE *arq = fopen(nome_arq, "rb");
+    if (!arq) {
+        return ERRO_ABRIR_ARQUIVO	;
     }
 
     CABECALHO cab;
-    if (fread(&cab, sizeof(CABECALHO), 1, arquivo) != 1) {
-        fclose(arquivo);
-        return -11;
+    if (fread(&cab, sizeof(CABECALHO), 1, arq) != 1) {
+        fclose(arq);
+        return ERRO_LER_CABECALHO	;
     }
 
     int pos = cab.pos_cabeca;
     LIVRO livro;
     while (pos != -1) {
-        fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET);
-        if (fread(&livro, sizeof(LIVRO), 1, arquivo) != 1) {
-            break;
-        };
+        if (fseek(arq, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET) != 0) {
+            fclose(arq);
+            return ERRO_POSICAO_INVALIDA;
+        }
+
+        if (fread(&livro, sizeof(LIVRO), 1, arq) != 1) {
+            fclose(arq);
+            return ERRO_LER_LIVRO;
+        }
 
         if (livro.codigo == codigo) {
             printf("Código: %d\nTítulo: %s\nAutor: %s\nEditora: %s\nEdicao: %d\nAno: %d\nExemplares: %d\n\n",
                    livro.codigo, livro.titulo, livro.autor, livro.editora,
                    livro.edicao, livro.ano, livro.exemplares);
-            fclose(arquivo);
-            return 0;
+            fclose(arq);
+            return SUCESSO;
         }
 
         pos = livro.prox;
     }
-
-    printf("Livro com código %d não encontrado.\n", codigo);
-    fclose(arquivo);
-    return -1;
+    //livro nao encontrado
+    fclose(arq);
+    return ERRO_ENCONTRAR_LIVRO;
 }
 
 /*
@@ -256,15 +200,17 @@ int imprimir_livro(const char *nome_arq, int codigo) {
  * Pós-condições:
  *   - Os dados de todos os livros (em ordem lógica) são impressos na tela
  */
-void listar_Todos(const char *nome_arq) {
+int listar_todos(const char *nome_arq) {
     FILE *arquivo = fopen(nome_arq, "rb");
     if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
-        return;
+        return ERRO_ABRIR_ARQUIVO;
     }
 
     CABECALHO cab;
-    fread(&cab, sizeof(CABECALHO), 1, arquivo);
+    if (fread(&cab, sizeof(CABECALHO), 1, arquivo) != 1) {
+        fclose(arquivo);
+        return ERRO_LER_CABECALHO;
+    }
 
     int pos = cab.pos_cabeca;
     LIVRO livro;
@@ -273,16 +219,23 @@ void listar_Todos(const char *nome_arq) {
     }
 
     while (pos != -1) {
-        fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET);
-        fread(&livro, sizeof(LIVRO), 1, arquivo);
+        if (fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET) != 0) {
+            fclose(arquivo);
+            return ERRO_ARQUIVO_SEEK;
+        }
+
+        if (fread(&livro, sizeof(LIVRO), 1, arquivo) != 1) {
+            fclose(arquivo);
+            return ERRO_ARQUIVO_READ;
+        }
 
         printf("Código: %d | Título: %s | Autor: %s | Ano: %d | Exemplares: %d\n",
                livro.codigo, livro.titulo, livro.autor, livro.ano, livro.exemplares);
-
         pos = livro.prox;
     }
 
-    fclose(arquivo);
+    fclose(arq);
+    return SUCESSO;
 }
 
 /*
@@ -299,38 +252,43 @@ void listar_Todos(const char *nome_arq) {
 *
 *
  */
-void buscar_Autor(const char *nome_arq, const char *autor) {
-    FILE *arquivo = fopen(nome_arq, "rb");
-    if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
-        return;
-    }
-
-    CABECALHO cab;
-    fread(&cab, sizeof(CABECALHO), 1, arquivo);
-
-    int pos = cab.pos_cabeca;
-    LIVRO livro;
-    int encontrado = 0;
-
-    while (pos != -1) {
-        fseek(arquivo, pos, SEEK_SET);
-        fread(&livro, sizeof(LIVRO), 1, arquivo);
-
-        if (strcmp(livro.autor, autor) == 0) {
-            printf("Título: %s | Código: %d\n", livro.titulo, livro.codigo);
-            encontrado = 1;
+int buscar_autor(const char *nome_arq, const char *autor) {
+        FILE *arq = fopen(nome_arq, "rb");
+        if (!arq) {
+            return ERRO_ABRIR_ARQUIVO;
         }
 
-        pos = livro.prox;
-    }
+        CABECALHO cab;
+        if (fread(&cab, sizeof(CABECALHO), 1, arq) != 1) {
+            fclose(arq);
+            return ERRO_LER_CABECALHO;
+        }
 
-    if (!encontrado) {
-        printf("Nenhum livro do autor \"%s\" encontrado.\n", autor);
-    }
+        int pos = cab.pos_cabeca;
+        LIVRO livro;
+        int encontrado = 0;
 
-    fclose(arquivo);
-}
+        while (pos != -1) {
+            if (fseek(arq, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET) != 0) {
+                fclose(arq);
+                return ERRO_ARQUIVO_SEEK;
+            }
+
+            if (fread(&livro, sizeof(LIVRO), 1, arq) != 1) {
+                fclose(arq);
+                return ERRO_ARQUIVO_READ;
+            }
+
+            if (strcmp(livro.autor, autor) == 0) {
+                printf("Título: %s | Código: %d\n", livro.titulo, livro.codigo);
+                encontrado = 1;
+            }
+
+            pos = livro.prox;
+        }
+        fclose(arq);
+        return SUCESSO;
+    }
 
 /*
  * buscar_Titulo - Busca e imprime os dados de um livro com base no título
@@ -345,35 +303,43 @@ void buscar_Autor(const char *nome_arq, const char *autor) {
  *   - Dados do livro encontrado são exibidos na tela
  *
  */
-void buscar_Titulo(const char *nome_arq, const char *titulo) {
-    FILE *arquivo = fopen(nome_arq, "rb");
-    if (!arquivo) {
-        perror("Erro ao abrir o arquivo");
-        return;
-    }
+int buscar_titulo(const char *nome_arq, const char *titulo) {
+    FILE *arq = fopen(nome_arq, "rb");
+        if (!arq) {
+            return ERRO_ABRIR_ARQUIVO;
+        }
 
-    CABECALHO cab;
-    fread(&cab, sizeof(CABECALHO), 1, arquivo);
+
+        CABECALHO cab;
+        if (fread(&cab, sizeof(CABECALHO), 1, arq) != 1) {
+            fclose(arq);
+            return ERRO_LER_CABECALHO;
+        }
 
     int pos = cab.pos_cabeca;
     LIVRO livro;
 
     while (pos != -1) {
-        fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET);
-
-        fread(&livro, sizeof(LIVRO), 1, arquivo);
+        if (fseek(arq, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET) != 0) {
+            fclose(arq);
+            return ERRO_ARQUIVO_SEEK;
+        }
+        if (fread(&livro, sizeof(LIVRO), 1, arq) != 1) {
+            fclose(arq);
+            return ERRO_ARQUIVO_READ;
+        }
 
         if (strcmp(livro.titulo, titulo) == 0) {
             printf("Código: %d\nTítulo: %s\nAutor: %s\nEditora: %s\nEdicao: %d\nAno: %d\nExemplares: %d\n\n",
                    livro.codigo, livro.titulo, livro.autor, livro.editora,
                    livro.edicao, livro.ano, livro.exemplares);
-            fclose(arquivo);
-            return;
+            fclose(arq);
+            return SUCESSO;
         }
 
         pos = livro.prox;
     }
 
     printf("Livro com título \"%s\" não encontrado.\n", titulo);
-    fclose(arquivo);
+    fclose(arq);
 }

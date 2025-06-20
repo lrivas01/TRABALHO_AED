@@ -2,6 +2,7 @@
 #define LIVRO_H
 
 #include <stdio.h>
+
 #define MAX_TITULO 151
 #define MAX_AUTOR 201
 #define MAX_EDITORA 51
@@ -92,24 +93,6 @@ int escreve_no_livro(FILE* arq,LIVRO* livro,int pos);
 int cadastrar_livro(const char *nome_arq, LIVRO livro);
 
 /*
- * remover_livro - Remove um livro da lista lógica e o encadeia na lista de posições livres
- *
- * @nome_arq - nome do arquivo binário contendo os livros
- * @codigo   - código do livro a ser removido
- *
- * Pré-condições:
- *   - O arquivo deve estar aberto para leitura e escrita
- *   - O cabeçalho deve estar corretamente configurado
- *
- * Pós-condições:
- *   - O livro é removido da lista lógica (encadeamento é ajustado)
- *   - A posição do livro é adicionada à lista de espaços livres
- *   - Retorna 0 em caso de sucesso
- *   - retorna Código de erro negativo em caso de falha
- */
-int remover_livro(const char *nome_arq, int codigo);
-
-/*
  * imprimir_livro - Imprime os dados de um livro com base no código fornecido
  *
  * @nome_arq - nome do arquivo binário contendo os livros
@@ -136,23 +119,23 @@ int imprimir_livro(const char *nome_arq, int codigo);
  * Pós-condições:
  *   - Os dados de todos os livros (em ordem lógica) são impressos na tela
  */
-void listar_Todos(const char *nome_arq);
+int listar_todos(const char *nome_arq);
 
 /*
-* buscar_Autor - Lista todos os livros escritos por um autor específico
-*
-* @nome_arq - nome do arquivo binário contendo os livros
-* @autor    - nome do autor a ser buscado
-*
-* Pré-condições:
-*   - O arquivo deve estar aberto para leitura
-*
-* Pós-condições:
-*   - Títulos dos livros do autor são impressos na tela
-*
-*
+ * buscar_Autor - Lista todos os livros escritos por um autor específico
+ *
+ * @nome_arq - nome do arquivo binário contendo os livros
+ * @autor    - nome do autor a ser buscado
+ *
+ * Pré-condições:
+ *   - O arquivo deve estar aberto para leitura
+ *
+ * Pós-condições:
+ *   - Títulos dos livros do autor são impressos na tela
+ *   - Retorna 0 em caso de sucesso
+ *   - Retorna Código de erro negativo se não encontrado ou ocorrer erro de leitura
  */
-void buscar_Autor(const char *nome_arq, const char *autor);
+int buscar_autor(const char *nome_arq, const char *autor);
 
 /*
  * buscar_Titulo - Busca e imprime os dados de um livro com base no título
@@ -165,8 +148,9 @@ void buscar_Autor(const char *nome_arq, const char *autor);
  *
  * Pós-condições:
  *   - Dados do livro encontrado são exibidos na tela
- *
+ *   - Retorna 0 em caso de sucesso
+ *   - Retorna Código de erro negativo se não encontrado ou ocorrer erro de leitura
  */
-void buscar_Titulo(const char *nome_arq, const char *titulo);
+int buscar_titulo(const char *nome_arq, const char *titulo);
 
 #endif
