@@ -34,9 +34,9 @@ static EMPRESTIMO* le_no_emprestimo(FILE* arquivo_emprestimo, int posicao) {
 }
 
 int emprestar_livro(
-        const char *caminho_arquivo_emprestimo, 
-        const char *caminho_arquivo_livro, 
-        const char *caminho_arquivo_usuario, 
+        const char* caminho_arquivo_emprestimo, 
+        const char* caminho_arquivo_livro, 
+        const char* caminho_arquivo_usuario, 
         const unsigned int codigo_usuario, 
         const unsigned int codigo_livro,
         const char* data_emprestimo
@@ -207,10 +207,139 @@ liberar_arquivo_emprestimo:
         return retorno;
 }
 
+int devolver_livro(
+        const char* caminho_arquivo_emprestimo, 
+        const char* caminho_arquivo_livro, 
+        const char* caminho_arquivo_usuario, 
+        const unsigned int codigo_usuario, 
+        const unsigned int codigo_livro,
+        const char* data_devolucao
+) {
+        int retorno = SUCESSO;
+
+        // abrir arquivos
+        FILE* arquivo_emprestimo = fopen(caminho_arquivo_emprestimo, "r+b");
+        if(!arquivo_emprestimo) {
+                retorno = ERRO_ABRIR_ARQUIVO;
+                goto liberar_arquivo_emprestimo;
+        }
+
+        FILE* arquivo_livro = fopen(caminho_arquivo_livro, "r+b");
+        if(!arquivo_livro) {
+                retorno = ERRO_ABRIR_ARQUIVO;
+                goto liberar_arquivo_livro;
+        }
+
+        FILE* arquivo_usuario = fopen(caminho_arquivo_usuario, "rb");
+        if(!arquivo_usuario) {
+                retorno = ERRO_ABRIR_ARQUIVO;
+                goto liberar_arquivo_usuario;
+        }
+
+        // abrir cabecalhos
+        CABECALHO* cabecalho_emprestimo = le_cabecalho(arquivo_emprestimo);
+        if(cabecalho_emprestimo == NULL) {
+                retorno = ERRO_LER_CABECALHO;
+                goto liberar_arquivo_usuario;
+        }
+
+        CABECALHO* cabecalho_livro = le_cabecalho(arquivo_livro);
+        if(cabecalho_livro == NULL) {
+                retorno = ERRO_LER_CABECALHO;
+                goto liberar_cabecalho_emprestimo;
+        }
+
+        // procurar emprestimo utilizando id do usuario e id do livro
+        int posicao_atual_emprestimo = cabecalho_emprestimo->pos_topo;
+        int posicao_atual_livro = cabecalho_livro->pos_topo;
+
+        EMPRESTIMO no_emprestimo_atual;
+        LIVRO no_livro_atual;
+
+        while(posicao_atual_emprestimo != -1) {
+                if(fseek(arquivo_emprestimo, sizeof(CABECALHO) + posicao_atual_emprestimo * sizeof(EMPRESTIMO), SEEK_SET) != 0) {
+                        retorno = ERRO_ARQUIVO_SEEK;
+                        goto liberar_cabecalho_livro;
+                }
+
+                if(fread(&no_emprestimo_atual, sizeof(EMPRESTIMO), 1, arquivo_emprestimo) != 1) {
+                        retorno = ERRO_ARQUIVO_READ;
+                        goto liberar_cabecalho_livro;
+                }
+
+                if(no_emprestimo_atual.codigo_livro == codigo_livro && no_emprestimo_atual.codigo_usuario == codigo_usuario)
+                        break;
+
+                posicao_atual_emprestimo = no_emprestimo_atual.proximo;
+        }
+
+        if(posicao_atual_emprestimo == -1) {
+                retorno = ERRO_ENCONTRAR_EMPRESTIMO;
+                goto liberar_cabecalho_livro;
+        }
+
+        // procurar livro
+        while(posicao_atual_livro != -1) {
+                if(fseek(arquivo_livro, sizeof(CABECALHO) + posicao_atual_livro * sizeof(LIVRO), SEEK_SET) != 0) {
+                        retorno = ERRO_ARQUIVO_SEEK;
+                        goto liberar_cabecalho_livro;
+                }
+
+                if(fread(&no_livro_atual, sizeof(LIVRO), 1, arquivo_livro) != 1) {
+                        retorno = ERRO_ARQUIVO_READ;
+                        goto liberar_cabecalho_livro;
+                }
+
+                if(no_livro_atual.codigo == codigo_livro)
+                        break;
+        }
+        if(posicao_atual_livro == -1) {
+                retorno = ERRO_ENCONTRAR_LIVRO;
+                goto liberar_cabecalho_livro;
+        }
+        // registrar devolução
+        strncpy(no_emprestimo_atual.data_devolucao, data_devolucao, MAX_DATA);
+
+        // incrementar quantidade do livro
+        no_livro_atual.exemplares++;
+
+        // registrar no arquivo binário
+        if(fseek(arquivo_emprestimo, sizeof(CABECALHO) + posicao_atual_emprestimo * sizeof(EMPRESTIMO), SEEK_SET) != 0) {
+                retorno = ERRO_ARQUIVO_SEEK;
+                goto liberar_cabecalho_livro;
+        }
+        if(fwrite(&no_emprestimo_atual, sizeof(EMPRESTIMO), 1, arquivo_emprestimo) != 1) {
+                retorno = ERRO_ARQUIVO_WRITE;
+                goto liberar_cabecalho_livro;
+        }
+
+        if(fseek(arquivo_livro, sizeof(CABECALHO) + posicao_atual_livro * sizeof(LIVRO), SEEK_SET) != 0) {
+                retorno = ERRO_ARQUIVO_SEEK;
+                goto liberar_cabecalho_livro;
+        }
+        if(fwrite(&no_livro_atual, sizeof(LIVRO), 1, arquivo_livro) != 1) {
+                retorno = ERRO_ARQUIVO_WRITE;
+                goto liberar_cabecalho_livro;
+        }
+
+liberar_cabecalho_livro:
+        free(cabecalho_livro);
+liberar_cabecalho_emprestimo:
+        free(cabecalho_emprestimo);
+liberar_arquivo_usuario:
+        fclose(arquivo_usuario);
+liberar_arquivo_livro:
+        fclose(arquivo_livro);
+liberar_arquivo_emprestimo:
+        fclose(arquivo_emprestimo);
+
+        return retorno;
+}
+
 int listar_livros_emprestados(
-        const char *caminho_arquivo_emprestimo, 
-        const char *caminho_arquivo_livro, 
-        const char *caminho_arquivo_usuario
+        const char* caminho_arquivo_emprestimo, 
+        const char* caminho_arquivo_livro, 
+        const char* caminho_arquivo_usuario
 ) {
         int retorno = SUCESSO;
         // exibir código de usuário, nome de usuário, código de livro, título de livro, data de emprestimo (somente os nn devolvidos)
@@ -250,7 +379,7 @@ int listar_livros_emprestados(
         CABECALHO* cabecalho_usuario = le_cabecalho(arquivo_usuario);
         if(cabecalho_usuario == NULL) {
                 retorno = ERRO_LER_CABECALHO;
-                goto liberar_arquivo_livro;
+                goto liberar_cabecalho_livro;
         }
 
         // percorrer nós de empréstimos, usuario e livros

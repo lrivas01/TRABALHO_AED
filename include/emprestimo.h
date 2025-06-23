@@ -23,8 +23,9 @@ int devolver_livro(
 	const char* caminho_arquivo_emprestimo,
 	const char* caminho_arquivo_livro, 
 	const char* caminho_arquivo_usuario, 
-	unsigned int codigo_usuario, 
-	unsigned int codigo_livro
+	const unsigned int codigo_usuario, 
+	const unsigned int codigo_livro,
+	const char* data_devolucao
 );
 int listar_livros_emprestados(
 	const char* caminho_arquivo_emprestimo,
