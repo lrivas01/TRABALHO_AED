@@ -8,6 +8,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * escreve_no_emprestimo - função interna que escreve nó do tipo empréstimo em um arquivo de lista encadeada
+ *
+ * @arquivo_emprestimo - ponteiro para arquivo binário aberto em modo leitura/escrita contendo os empréstimos
+ * @no_emprestimo - ponteiro para a estrutura EMPRESTIMO que será escrita no arquivo
+ * @posicao - índice (posição) do nó no arquivo onde os dados serão escritos
+ *
+ * Pré-condições:
+ *      - O arquivo deve estar aberto e posicionado para escrita.
+ *	- O arquivo deve conter um cabeçalho válido para a lista encadeada.
+ *	- A posição deve ser válida (não ultrapassar o limite de registros do arquivo).
+ *	- O ponteiro no_emprestimo deve apontar para uma estrutura USUARIO válida e inicializada.
+ * Pós-condições:
+ *      - Os dados do nó são gravados na posição correta do arquivo.
+ *	- Retorna SUCESSO (0) em caso de sucesso.
+ *	- Retorna ERRO_ARQUIVO_SEEK (-1) em caso de erro no fseek.
+ *	- Retorna ERRO_ARQUIVO_WRITE (-2) em caso de erro no fwrite.
+ */
 static int escreve_no_emprestimo(FILE* arquivo_emprestimo, EMPRESTIMO* no_emprestimo, int posicao) {
         if(fseek(arquivo_emprestimo, sizeof(CABECALHO) + posicao * sizeof(EMPRESTIMO), SEEK_SET) != 0)
 	        return ERRO_ARQUIVO_SEEK;
@@ -17,6 +35,21 @@ static int escreve_no_emprestimo(FILE* arquivo_emprestimo, EMPRESTIMO* no_empres
         return SUCESSO;
 }
 
+/*
+ * le_no_emprestimo - função interna que lê um nó do tipo usuário em um arquivo de lista encadeada
+ * 
+ * @arquivo_emprestimo - ponteiro para arquivo binário aberto em modo leitura contendo os empréstimos
+ * @posicao - posicao do nó que será lido
+ *
+ * Pré-condições:
+ *	- O arquivo deve estar aberto e posicionado para leitura.
+ *	- O arquivo deve conter um cabeçalho válido para lista encadeada.
+ *	- A posição deve ser válida (não ultrapassar o número de registros).
+ *
+ * Pós-condições:
+ *	- Retorna um ponteiro para a estrutura EMPRESTIMO correspondente à posição lida.
+ *	- Em caso de erro (falha em fseek, fread ou malloc), retorna NULL.
+ */
 static EMPRESTIMO* le_no_emprestimo(FILE* arquivo_emprestimo, int posicao) {
         EMPRESTIMO* no_emprestimo = malloc(sizeof(EMPRESTIMO));
         if(no_emprestimo == NULL)
@@ -33,6 +66,38 @@ static EMPRESTIMO* le_no_emprestimo(FILE* arquivo_emprestimo, int posicao) {
         return no_emprestimo;
 }
 
+/*
+ * emprestar_livro - função que registra um novo empréstimo
+ *
+ * @caminho_arquivo_emprestimo - caminho completo para o arquivo binário de empréstimo
+ * @caminho_arquivo_livro - caminho completo para o arquivo binário de livro
+ * @caminho_arquivo_usuario - caminho completo para o arquivo binário de usuário
+ * @codigo_usuario - identificador do usuário que pegou livro emprestado
+ * @codigo_livro - identificador do livro que foi emprestado
+ * @data_emprestimo - data que o livro foi emprestado
+ *
+ * Pré-condições:
+ *	- Caminhos para os arquivos devem ser válidos.
+ *	- Arquivos de empréstimo e livro podem ser aberto em modo leitura e escrita.
+ *	- Arquivo de usuário pode ser aberto em modo leitura.
+ *	- Códigos de usuario e livro devem ser válidos.
+ *	- Data do empréstimo deve estar no formato adequado (DD/MM/AAAA).
+ * Pós-condições:
+ *	- Um novo registro de empréstimo é registrado, reutilizando posições livres se existirem.
+ *	- O cabeçalho do arquivo é atualizado para refletir a nova cabeça da lista encadeada e possíveis posições livres.
+ *	- A quantidade de exemplares do livro é decrementada em 1.
+ *	- Retorna SUCESSO (0) em caso de sucesso na operação.
+ *	- Retorna valores negativos em caso de erro:
+ *		- ERRO_ABRIR_ARQUIVO (-10): não foi possível abrir algum arquivo informado.
+ *		- ERRO_LER_CABECALHO (-11): não foi possível ler o cabeçalho de algum arquivo informado.
+ *		- ERRO_ARQUIVO_SEEK (-1): erro no posicionamento em algum arquivo (fseek).
+ *		- ERRO_ARQUIVO_READ (-3): erro na leitura de algum arquivo (fread).
+ *		- ERRO_ENCONTRAR_USUARIO (-16): não foi possível encontrar o usuário informado.
+ *		- ERRO_ENCONTRAR_LIVRO (-15): não foi possível encontrar o livro informado.
+ *		- ERRO_LIVROS_ESGOTADOS (-17): não há unidades disponíveis para empréstimo.
+ *		- ERRO_ESCREVER_EMPRESTIMO (-18): não foi possível registrar o empréstimo na lista encadeada.
+ *		- ERRO_LER_EMPRESTIMO (-19): não foi possível ler nó de empréstimo na lista encadeada.
+ */
 int emprestar_livro(
         const char* caminho_arquivo_emprestimo, 
         const char* caminho_arquivo_livro, 
@@ -52,19 +117,19 @@ int emprestar_livro(
         FILE* arquivo_emprestimo = fopen(caminho_arquivo_emprestimo, "r+b");
         if(!arquivo_emprestimo) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_emprestimo;
+                return retorno;
         }
 
         FILE* arquivo_livro = fopen(caminho_arquivo_livro, "r+b");
         if(!arquivo_livro) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_livro;
+                goto liberar_arquivo_emprestimo;
         }
 
         FILE* arquivo_usuario = fopen(caminho_arquivo_usuario, "rb");
         if(!arquivo_usuario) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_usuario;
+                goto liberar_arquivo_livro;
         }
 
         // procurar usuario e ver se existe
@@ -207,10 +272,36 @@ liberar_arquivo_emprestimo:
         return retorno;
 }
 
+/*
+ * devolver_livro - registra devolução de livro
+ *
+ * @caminho_arquivo_emprestimo - caminho completo para arquivo binário de empréstimos
+ * @caminho_arquivo_livro - caminho completo para arquivo binário de livros
+ * @caminho_arquivo_usuario - caminho completo para arquivo binário de usuários
+ * @codigo_usuario - identificador do usuário que pegou livro emprestado
+ * @codigo_livro - identificador do livro que foi emprestado
+ * @data_devolucao - data que livro foi devolvido
+ *
+ * Pré-condições:
+ *	- Caminhos para os arquivos devem ser válidos.
+ *	- Arquivos de empréstimo e livro podem ser abertos em modo leitura e escrita.
+ *	- Códigos de usuario e livro devem ser válidos.
+ *	- Data da devolução deve estar no formato adequado (DD/MM/AAAA).
+ * Pós-condições:
+ *	- A data de devolução é registrada no nó de empréstimo
+ *	- A quantidade de exemplares do livro é incrementada em 1.
+ *	- Retorna SUCESSO (0) em caso de sucesso.
+ *	- Retorna valores negativos em caso de erro:
+ *		- ERRO_ABRIR_ARQUIVO (-10): não foi possível abrir algum arquivo informado.
+ *		- ERRO_LER_CABECALHO (-11): não foi possível ler o cabeçalho de algum arquivo informado.
+ *		- ERRO_ARQUIVO_SEEK (-1): erro no posicionamento de algum arquivo (fseek).
+ *		- ERRO_ARQUIVO_READ (-3): erro na leitura de algum arquivo (fread).
+ *		- ERRO_ENCONTRAR_EMPRESTIMO (-20): não foi possível encontrar o empréstimo associado.
+ *		- ERRO_ENCONTRAR_LIVRO (-15): não foi possível encontrar o livro informado.
+ */
 int devolver_livro(
         const char* caminho_arquivo_emprestimo, 
         const char* caminho_arquivo_livro, 
-        const char* caminho_arquivo_usuario, 
         const unsigned int codigo_usuario, 
         const unsigned int codigo_livro,
         const char* data_devolucao
@@ -221,26 +312,20 @@ int devolver_livro(
         FILE* arquivo_emprestimo = fopen(caminho_arquivo_emprestimo, "r+b");
         if(!arquivo_emprestimo) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_emprestimo;
+                return retorno;
         }
 
         FILE* arquivo_livro = fopen(caminho_arquivo_livro, "r+b");
         if(!arquivo_livro) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_livro;
+                goto liberar_arquivo_emprestimo;
         }
-
-        FILE* arquivo_usuario = fopen(caminho_arquivo_usuario, "rb");
-        if(!arquivo_usuario) {
-                retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_usuario;
-        }
-
+        
         // abrir cabecalhos
         CABECALHO* cabecalho_emprestimo = le_cabecalho(arquivo_emprestimo);
         if(cabecalho_emprestimo == NULL) {
                 retorno = ERRO_LER_CABECALHO;
-                goto liberar_arquivo_usuario;
+                goto liberar_arquivo_livro;
         }
 
         CABECALHO* cabecalho_livro = le_cabecalho(arquivo_livro);
@@ -326,8 +411,6 @@ liberar_cabecalho_livro:
         free(cabecalho_livro);
 liberar_cabecalho_emprestimo:
         free(cabecalho_emprestimo);
-liberar_arquivo_usuario:
-        fclose(arquivo_usuario);
 liberar_arquivo_livro:
         fclose(arquivo_livro);
 liberar_arquivo_emprestimo:
@@ -336,6 +419,25 @@ liberar_arquivo_emprestimo:
         return retorno;
 }
 
+/*
+ * listar_livros_emprestados - exibe na tela informações sobre empréstimos
+ *
+ * @caminho_arquivo_emprestimo - caminho completo para o arquivo binário de empréstimos
+ * @caminho_arquivo_livro - caminho completo para o arquivo binário de livros
+ * @caminho_arquivo_usuario - caminho completo para o arquivo binário de usuários
+ *
+ * Pré-condições:
+ *	- Arquivos informados devem ser válidos.
+ *	- Arquivos informados podem ser abertos em modo leitura.
+ * Pós-condições:
+ *	- Será exibido na tela via printf para cada empréstimo (apenas os que não tiveram livros devolvidos):
+ *		- Código do usuário.
+ *		- Nome do usuário.
+ *		- Código do livro.
+ *		- Título do livro.
+ *		- Data do empréstimo.
+ *	- Caso não haja nenhum empréstimo, uma mensagem informando isso será exibida.
+ */
 int listar_livros_emprestados(
         const char* caminho_arquivo_emprestimo, 
         const char* caminho_arquivo_livro, 
@@ -348,19 +450,19 @@ int listar_livros_emprestados(
         FILE* arquivo_emprestimo = fopen(caminho_arquivo_emprestimo, "rb");
         if(!arquivo_emprestimo) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_emprestimo;
+                return retorno;
         }
 
         FILE* arquivo_livro = fopen(caminho_arquivo_livro, "rb");
         if(!arquivo_livro) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_livro;
+                goto liberar_arquivo_emprestimo;
         }
 
         FILE* arquivo_usuario = fopen(caminho_arquivo_usuario, "rb");
         if(!arquivo_usuario) {
                 retorno = ERRO_ABRIR_ARQUIVO;
-                goto liberar_arquivo_usuario;
+                goto liberar_arquivo_livro;
         }
 
         // obter cabecalhos dos arquivos
