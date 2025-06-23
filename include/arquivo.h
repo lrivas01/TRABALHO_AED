@@ -62,4 +62,6 @@ int escreve_cabecalho(FILE* arq, CABECALHO* cab);
  */
 int cria_lista_vazia(FILE* arq);
 
+int inicializar_base_de_dados(char* caminho_diretorio);
+
 #endif //ARQUIVO_H
