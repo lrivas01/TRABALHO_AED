@@ -1,6 +1,9 @@
 #include "../include/arquivo.h"
 #include "../include/erros.h"
 #include "../include/utils.h"
+//#include "../include/emprestimo.h"
+#include "../include/livro.h"
+#include "../include/usuario.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -187,6 +190,61 @@ int inicializar_base_de_dados(char *caminho_diretorio) {
         ) {
                 return ERRO_INICIALIZAR_ARQUIVO;
         }
+
+        return SUCESSO;
+}
+
+int processar_lote(
+        const char *caminho_arquivo_lote,
+        const char* caminho_arquivo_emprestimo,
+        const char* caminho_arquivo_livro,
+        const char* caminho_arquivo_usuario
+) {
+        FILE* arquivo = fopen(caminho_arquivo_lote, "r");
+        if(!arquivo) {
+                return ERRO_ABRIR_ARQUIVO;
+        }
+
+        char linha[512];
+        int numero_linha = 1;
+        while (fgets(linha, sizeof(linha), arquivo)) {
+                // Remover \n
+                linha[strcspn(linha, "\n")] = 0;
+
+                if (linha[0] == 'L') {
+                        char *token = strtok(linha + 2, ";");
+                        int codigo = atoi(token);
+                        char *titulo = strtok(NULL, ";");
+                        char *autor = strtok(NULL, ";");
+                        char *editora = strtok(NULL, ";");
+                        int edicao = atoi(strtok(NULL, ";"));
+                        int ano = atoi(strtok(NULL, ";"));
+                        int exemplares = atoi(strtok(NULL, ";"));
+                        //cadastrar_livro(caminho_arquivo_livro, LIVRO livro)
+                } else if (linha[0] == 'U') {
+                        char *token = strtok(linha + 2, ";");
+                        int codigo = atoi(token);
+                        char *nome = strtok(NULL, ";");
+                        if(cadastrar_usuario(caminho_arquivo_usuario, codigo, nome) != 0)
+                                goto erro;
+                } else if (linha[0] == 'E') {
+                        char *token = strtok(linha + 2, ";");
+                        int cod_usuario = atoi(token);
+                        int cod_livro = atoi(strtok(NULL, ";"));
+                        char *data_emp = strtok(NULL, ";");
+                        char *data_dev = strtok(NULL, ";");
+                        // chama função: registrar_emprestimo(cod_usuario, cod_livro, data_emp, data_dev);
+                } else {
+                        printf("\nLinha %d desconhecida: tipo desconhecido\n", numero_linha);
+                }
+                numero_linha++;
+                continue;
+        erro:
+                printf("\nErro ao processar linha %d: %s\n", numero_linha, linha);
+                numero_linha++;
+        }
+
+        fclose(arquivo);
 
         return SUCESSO;
 }

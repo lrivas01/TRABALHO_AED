@@ -87,4 +87,11 @@ int cria_lista_vazia(FILE* arq);
  */
 int inicializar_base_de_dados(char* caminho_diretorio);
 
+int processar_lote(
+    const char* caminho_arquivo_lote,
+    const char* caminho_arquivo_emprestimo,
+    const char* caminho_arquivo_livro,
+    const char* caminho_arquivo_usuario
+);
+
 #endif //ARQUIVO_H
