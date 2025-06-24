@@ -139,7 +139,7 @@ int emprestar_livro(
                 goto liberar_arquivo_usuario;
         }
 
-        int posicao_atual_usuario = cabecalho_usuario->pos_topo;
+        int posicao_atual_usuario = cabecalho_usuario->pos_cabeca;
         USUARIO usuario;
         int usuario_existe = 0;
         while (posicao_atual_usuario != -1) {
@@ -173,7 +173,7 @@ int emprestar_livro(
                 goto liberar_cabecalho_usuario;
         }
 
-        int posicao_atual_livro = cabecalho_livro->pos_topo;
+        int posicao_atual_livro = cabecalho_livro->pos_cabeca;
         LIVRO livro;
         int livro_existe = 0;
         while(posicao_atual_livro != -1) {
@@ -335,8 +335,8 @@ int devolver_livro(
         }
 
         // procurar emprestimo utilizando id do usuario e id do livro
-        int posicao_atual_emprestimo = cabecalho_emprestimo->pos_topo;
-        int posicao_atual_livro = cabecalho_livro->pos_topo;
+        int posicao_atual_emprestimo = cabecalho_emprestimo->pos_cabeca;
+        int posicao_atual_livro = cabecalho_livro->pos_cabeca;
 
         EMPRESTIMO no_emprestimo_atual;
         LIVRO no_livro_atual;
@@ -486,13 +486,13 @@ int listar_livros_emprestados(
 
         // percorrer nós de empréstimos, usuario e livros
         int posicao_atual_emprestimo, posicao_original_emprestimo;
-        posicao_atual_emprestimo = posicao_original_emprestimo = cabecalho_emprestimo->pos_topo;
+        posicao_atual_emprestimo = posicao_original_emprestimo = cabecalho_emprestimo->pos_cabeca;
 
         int posicao_atual_livro, posicao_original_livro;
-        posicao_atual_livro = posicao_original_livro = cabecalho_livro->pos_topo;
+        posicao_atual_livro = posicao_original_livro = cabecalho_livro->pos_cabeca;
 
         int posicao_atual_usuario, posicao_original_usuario;
-        posicao_atual_usuario = posicao_original_usuario = cabecalho_usuario->pos_topo;
+        posicao_atual_usuario = posicao_original_usuario = cabecalho_usuario->pos_cabeca;
 
         EMPRESTIMO no_emprestimo_atual;
         LIVRO no_livro_atual;
