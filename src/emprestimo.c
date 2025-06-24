@@ -473,7 +473,7 @@ int listar_livros_emprestados(
         }
 
         CABECALHO* cabecalho_livro = le_cabecalho(arquivo_livro);
-        if(arquivo_livro == NULL) {
+        if(cabecalho_livro == NULL) {
                 retorno = ERRO_LER_CABECALHO;
                 goto liberar_cabecalho_emprestimo;
         }
