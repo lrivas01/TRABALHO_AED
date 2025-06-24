@@ -1,6 +1,7 @@
 #include"../include/livro.h"
 #include"../include/arquivo.h"
 #include"../include/usuario.h"
+#include"../include/utils.h"
 #define MAX_CAMINHO 32768 //tamanho maximo + 1 que um caminho pode ter no windows, no linux o limite é menor
 
 #include<stdio.h>
@@ -13,6 +14,8 @@ void opcao_cadastrar_livro (char* caminho_livros);
 void opcao_imprimir_livro(char* caminho_livros);
 void opcao_cadastrar_usuario (char* caminho_usuarios);
 void opcao_buscar_por_titulo (char *caminho_livros);
+void opcao_emprestar_livro(caminho_emprestimos,caminho_livros,caminho_usuarios);
+void opcao_devolver_livro();
 
 int main () {
     char diretorio[MAX_CAMINHO];
@@ -58,7 +61,7 @@ int main () {
                     opcao_cadastrar_livro(caminho_livros);
                     break;
                 case 2:
-                    //opcao_imprimir_livro(caminho_livros);
+                    opcao_imprimir_livro(caminho_livros);
                     break;
                 case 3:
                     listar_todos_livros(caminho_livros);
@@ -74,13 +77,13 @@ int main () {
                     opcao_cadastrar_usuario(caminho_usuarios);
                     break;
                 case 7:
-                    // emprestar_livro(...);
+                   	opcao_emprestar_livro(caminho_emprestimos,caminho_livros,caminho_usuarios);
                     break;
                 case 8:
-                    // devolver_livro(...);
+                     opcao_devolver_livro(caminho_emprestimos,caminho_livros);
                     break;
                 case 9:
-                    // listar emprestados(...);
+                     listar_emprestados(caminho_emprestimos,caminho_livros,caminho_usuarios);
                     break;
                 case 10:
                     // carregar arquivo(...);
@@ -163,19 +166,29 @@ void opcao_cadastrar_livro (char* caminho_livros) {
 }
 
 
-int opcao_imprimir_livro(char* caminho_livros){
-	int codigo;
-	char buffer[16];
-	if (!fgets(buffer, sizeof(buffer), stdin))
-        return ; // erro na leitura
-	buffer[strcspn(buffer, "\n")] = '\0';
-	errno = 0;
-    valor = strtol(buffer, &endptr, 10);
- 	if (endptr == buffer || *endptr != '\0' || errno == ERANGE)
-        return; // entrada inválida
+void opcao_imprimir_livro(char* caminho_livros) {
+    unsigned int codigo;
+    unsigned int resultado;
 
-    *saida = (int) valor;
-    return 0; // sucesso
+    printf("Digite o código do livro: ");
+
+    resultado = ler_unsigned_int_direto();
+
+    if (resultado < 0) {
+        printf("Erro na leitura da entrada!\n");
+        return;
+    }
+
+
+    int retorno = imprimir_livro(caminho_livros, codigo);
+
+    if (retorno != 0) {
+        if (retorno == ERRO_ENCONTRAR_LIVRO) {
+            printf("Livro com código %d não encontrado.\n", codigo);
+        } else {
+            printf("Erro ao buscar livro: código de erro %d\n", retorno);
+        }
+    }
 }
 
 
@@ -208,3 +221,53 @@ void opcao_buscar_por_titulo (char *caminho_livros) {
     buscar_titulo_livro(caminho_livros,nome);
 }
 
+
+void opcao_emprestar_livro (caminho_emprestimos,caminho_livros,caminho_usuarios) {
+	char buffer[MAX_DATA+1];
+	unsigned int codigo_usuario;
+	unsigned int codigo_livro;
+	printf("Digite o codigo do usuario: ");
+	codigo_usuario = ler_unsigned_int_direto();
+	printf("\nDigite o codigo do livro: ");
+	codigo_livro =  ler_unsigned_int_direto();
+	printf("\nDigite a data do emprestimo: ");
+    if (!fgets(buffer, sizeof(buffer), stdin)) {
+        printf("erro na leitura de data"); // erro na leitura
+    }
+
+    buffer[strcspn(buffer, "\n")] = '\0';
+	if(emprestar_livro(
+        caminho_emprestimos,
+        caminho_livros,
+        caminho_usuarios,
+        codigo_usuarios,
+        codigo_livros,
+        buffer
+	) < 0)printf("Erro ao realizar o emprestimo do livro\n");
+
+}
+
+void opcao_devolver_livro (char* caminho_emprestimos,char*caminho_livros) {
+	char buffer[MAX_DATA+1];
+	unsigned int codigo_usuario;
+	unsigned int codigo_livro;
+	printf("Digite o codigo do usuario: ");
+	codigo_usuario = ler_unsigned_int_direto();
+	printf("\nDigite o codigo do livro: ");
+	codigo_livro =  ler_unsigned_int_direto();
+	printf("\nDigite a data da devolução: ");
+    if (!fgets(buffer, sizeof(buffer), stdin)) {
+        printf("erro na leitura de data"); // erro na leitura
+    }
+
+    buffer[strcspn(buffer, "\n")] = '\0';
+
+if(devolver_livro(
+        caminho_emprestimos,
+        caminho_livros,
+        codigo_usuario,
+        codigo_livro,
+        buffer
+) < 0 )printf("erro ao realizar a devolução do livro\n");
+
+}

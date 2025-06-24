@@ -14,4 +14,5 @@
 int caminho_termina_com_barra(const char* caminho);
 void normalizar_para_sep(char* caminho);
 void trim(char* str);
+unsigned int ler_unsigned_int_direto();
 #endif // UTILS_H

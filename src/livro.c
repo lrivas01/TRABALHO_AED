@@ -121,7 +121,7 @@ int cadastrar_livro(const char *nome_arquivo, LIVRO novo) {
 int imprimir_livro(const char *nome_arq, int codigo) {
     FILE *arq = fopen(nome_arq, "rb");
     if (!arq) {
-        return ERRO_ABRIR_ARQUIVO	;
+        return ERRO_ABRIR_ARQUIVO;
     }
 
     CABECALHO cab;
