@@ -21,9 +21,9 @@
  */
 typedef struct {
     int codigo;
-    char titulo[MAX_TITULO + 1];
-    char autor[MAX_AUTOR + 1];
-    char editora[MAX_EDITORA + 1];
+    char titulo[MAX_TITULO+1];
+    char autor[MAX_AUTOR+1];
+    char editora[MAX_EDITORA+1];
     int edicao;
     int ano;
     int exemplares;
@@ -113,4 +113,18 @@ int buscar_autor_livro(const char *nome_arq, const char *autor);
  */
 int buscar_titulo_livro(const char *nome_arq, const char *titulo);
 
+/*
+* calcular_total_livros - retorna a quantia total de livros
+* @nome_arq - nome do arquivo binário contendo os livros
+*
+* Pré-condições:
+*   - O arquivo deve estar aberto para leitura
+*
+ * Pós-condições:
+ *   - Quantia de livros disponiveis é exibida
+ *   - Retorna SUCESSO (0) em caso de sucesso
+ *   - Retorna código de erro negativo se não encontrado ou ocorrer erro de leitura
+*
+*/
+int calcular_total_livros(const char *nome_arq);
 #endif
