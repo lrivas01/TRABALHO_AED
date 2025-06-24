@@ -1,4 +1,5 @@
 #include "../include/usuario.h"
+#include "../include/arquivo.h"
 #include "../include/erros.h"
 
 #include <stdio.h>

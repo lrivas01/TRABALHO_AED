@@ -16,6 +16,9 @@ typedef enum {
 	ERRO_LER_USUARIO	= -13,
 	ERRO_ESCREVER_USUARIO	= -14,
 	ERRO_ENCONTRAR_LIVRO = -15,
+
+	ERRO_CRIAR_LISTA = -21,
+	ERRO_INICIALIZAR_ARQUIVO = -22
 } codigo_erro;
 
 #endif // _ERROS_H
