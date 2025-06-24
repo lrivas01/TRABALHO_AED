@@ -10,7 +10,7 @@
  * @codigo_livro - identificador único do livro
  * @data_emprestimo - data que livro foi emprestado (no formato DD/MM/AAAA)
  * @data_devolucao - data que livro foi devolvido (no formato DD/MM/AAAA)
- * int proximo - inteiro que indica posicao do próximo nó de empréstimo
+ * @proximo - inteiro que indica posicao do próximo nó de empréstimo
  *
  * A estrutura armazena informações para o empréstimo de um livro para um 
  * usuário. Todos os campos são obrigatórios, exceto 'data_devolucao'. Ele pode
