@@ -593,37 +593,4 @@ liberar_arquivo_emprestimo:
         return retorno;
 }
 
-int testar_emprestimos(const char *nome_arq) {
-    FILE *arquivo = fopen(nome_arq, "rb");
-    if (!arquivo) return ERRO_ABRIR_ARQUIVO;
-
-    CABECALHO cab;
-    if (fread(&cab, sizeof(CABECALHO), 1, arquivo) != 1) {
-        fclose(arquivo);
-        return ERRO_LER_CABECALHO;
-    }
-
-    int pos = cab.pos_cabeca;
-    EMPRESTIMO emp;
-
-    while (pos != -1) {
-        printf("Lendo emprestimo na pos: %d\n", pos);
-        if (fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(EMPRESTIMO), SEEK_SET) != 0) {
-            perror("Erro em fseek");
-            break;
-        }
-
-        if (fread(&emp, sizeof(EMPRESTIMO), 1, arquivo) != 1) {
-            perror("Erro em fread");
-            break;
-        }
-
-        printf("Emp: Usuario: %d, Livro: %d, Data: %s, Devolução: %s, Proximo: %d\n",
-               emp.codigo_usuario, emp.codigo_livro, emp.data_emprestimo, emp.data_devolucao, emp.proximo);
-        pos = emp.proximo;
-    }
-
-    fclose(arquivo);
-    return SUCESSO;
-}
 

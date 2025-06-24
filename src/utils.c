@@ -57,8 +57,3 @@ void trim(char *str) {
         memmove(str, inicio, fim - inicio + 2);  // +2 pra incluir '\0'
 }
 
-void ltrim(char *str) {
-    int i = 0;
-    while (isspace((unsigned char)str[i])) i++;
-    if (i > 0) memmove(str, str + i, strlen(str + i) + 1);
-}
