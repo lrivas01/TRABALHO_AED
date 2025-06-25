@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include<ctype.h>
 
 
 int caminho_termina_com_barra(const char *caminho) {
