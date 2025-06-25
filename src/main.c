@@ -60,7 +60,7 @@ int main () {
         int opcao;
         do {
                 exibir_menu();
-                printf("Escolha uma opção: ");
+                printf("Escolha uma opção: \n");
 
                 scanf("%d", &opcao);
                 getchar();
@@ -167,7 +167,7 @@ void opcao_cadastrar_livro(char* caminho_livros) {
         }
 
         unsigned int exemplares;
-        printf("Quantidade de exemplares: ");
+        printf("\nQuantidade de exemplares: ");
         while (!ler_unsigned_int_com_zero(&exemplares)) {
                 printf("Digite um valor valido (nao negativo)\n");
                 printf("Quantidade de exemplares: ");
@@ -265,7 +265,6 @@ void opcao_emprestar_livro (char* caminho_emprestimos, char* caminho_livros, cha
                 printf("\nNao foi possivel obter a data atual. Emprestimo nao registrado.");
                 return;
         }
-        data[MAX_DATA] = '\0';
 
         int res = 0;
         if((res = emprestar_livro(caminho_emprestimos, caminho_livros, caminho_usuarios, codigo_usuario, codigo_livro, data)) < 0)

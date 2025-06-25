@@ -93,7 +93,7 @@ static int verificar_emprestimo_existente(const char* caminho_arquivo_emprestimo
                         goto liberar_cabecalho;
                 }
 
-                if(emprestimo.codigo_livro == codigo_livro && emprestimo.codigo_usuario == codigo_usuario) {
+                if(emprestimo.codigo_livro == codigo_livro && emprestimo.codigo_usuario == codigo_usuario && emprestimo.data_devolucao[0] == '\0') {
                         retorno = ERRO_CONFLITO_ID;
                         goto liberar_cabecalho; // conflito encontrado
                 }
@@ -259,6 +259,7 @@ int emprestar_livro(
         emprestimo.codigo_livro = codigo_livro;
         emprestimo.codigo_usuario = codigo_usuario;
         strncpy(emprestimo.data_emprestimo, data_emprestimo, MAX_DATA);
+        emprestimo.data_emprestimo[MAX_DATA] = '\0';
         emprestimo.data_devolucao[0] = '\0';
         emprestimo.proximo = cabecalho_emprestimo->pos_cabeca;
 
@@ -400,8 +401,13 @@ int devolver_livro(
                         goto liberar_cabecalho_livro;
                 }
 
-                if(no_emprestimo_atual.codigo_livro == codigo_livro && no_emprestimo_atual.codigo_usuario == codigo_usuario)
+                if(
+                        no_emprestimo_atual.codigo_livro == codigo_livro && 
+                        no_emprestimo_atual.codigo_usuario == codigo_usuario && 
+                        no_emprestimo_atual.data_devolucao[0] == '\0'
+                ) {
                         break;
+                }
 
                 posicao_atual_emprestimo = no_emprestimo_atual.proximo;
         }
@@ -434,7 +440,7 @@ int devolver_livro(
         }
         // registrar devolução
         strncpy(no_emprestimo_atual.data_devolucao, data_devolucao, MAX_DATA);
-
+        no_emprestimo_atual.data_devolucao[MAX_DATA] = '\0';
         // incrementar quantidade do livro
         no_livro_atual.exemplares++;
 
