@@ -66,6 +66,49 @@ static EMPRESTIMO* le_no_emprestimo(FILE* arquivo_emprestimo, int posicao) {
         return no_emprestimo;
 }
 
+static int verificar_emprestimo_existente(const char* caminho_arquivo_emprestimo, unsigned int codigo_usuario, unsigned int codigo_livro) {
+        int retorno = SUCESSO;
+        FILE* arquivo = fopen(caminho_arquivo_emprestimo, "rb");
+        if(!arquivo) {
+                return ERRO_ABRIR_ARQUIVO;
+        }
+
+        CABECALHO* cabecalho = le_cabecalho(arquivo);
+        if(!cabecalho) {
+                retorno = ERRO_LER_CABECALHO;
+                goto liberar_arquivo;
+        }
+
+        int pos = cabecalho->pos_cabeca;
+        EMPRESTIMO emprestimo;
+
+        while (pos != -1) {
+                if(fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(EMPRESTIMO), SEEK_SET) != 0) {
+                        retorno = ERRO_ARQUIVO_SEEK;
+                        goto liberar_cabecalho;
+                }
+
+                if(fread(&emprestimo, sizeof(EMPRESTIMO), 1, arquivo) != 1) {
+                        retorno = ERRO_ARQUIVO_READ;
+                        goto liberar_cabecalho;
+                }
+
+                if(emprestimo.codigo_livro == codigo_livro && emprestimo.codigo_usuario == codigo_usuario) {
+                        retorno = ERRO_CONFLITO_ID;
+                        goto liberar_cabecalho; // conflito encontrado
+                }
+
+                pos = emprestimo.proximo;
+        }
+liberar_cabecalho:
+        free(cabecalho);
+liberar_arquivo:
+        fclose(arquivo);
+
+        return retorno;
+
+}
+
 /*
  * emprestar_livro - função que registra um novo empréstimo
  *
@@ -106,6 +149,9 @@ int emprestar_livro(
         const unsigned int codigo_livro,
         const char* data_emprestimo
 ) {
+        if(verificar_emprestimo_existente(caminho_arquivo_emprestimo, codigo_usuario, codigo_livro) == ERRO_CONFLITO_ID)
+                return ERRO_CONFLITO_ID;
+
         int retorno = SUCESSO;
 
         // abrir arquivos

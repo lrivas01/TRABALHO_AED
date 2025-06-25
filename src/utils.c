@@ -1,11 +1,11 @@
 #include "../include/utils.h"
+#include "../include/erros.h"
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include<ctype.h>
-
+#include <time.h>
 
 int caminho_termina_com_barra(const char *caminho) {
         if(caminho == NULL || caminho[0] == '\0')
@@ -112,5 +112,18 @@ void trim(char *str) {
     // Copiar resultado para o início da string
     if (str != inicio)
         memmove(str, inicio, fim - inicio + 2);  // +2 pra incluir '\0'
+}
+
+int obter_data_atual(char *buffer, size_t tamanho) {
+    time_t t = time(NULL);
+    struct tm *data_local = localtime(&t);
+
+    if (data_local) {
+        strftime(buffer, tamanho, "%d/%m/%Y", data_local);
+    } else {
+        buffer[0] = '\0'; // string vazia em caso de erro
+        return ERRO_OBTER_DATA;
+    }
+    return SUCESSO;
 }
 

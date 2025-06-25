@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <stdlib.h>
+
 #ifdef _WIN32
 	#include <windows.h>
 	#define SEPARADOR_DIRETORIO "\\"
@@ -16,4 +18,6 @@ void normalizar_para_sep(char* caminho);
 void trim(char* str);
 unsigned int ler_unsigned_int_direto();
 void construir_caminho_completo(char* caminho_base, const char* nome_arquivo);
+int obter_data_atual(char *buffer, size_t tamanho);
+
 #endif // UTILS_H

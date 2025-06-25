@@ -240,10 +240,17 @@ int processar_lote(
                         strncpy(livro.editora, editora_temp, MAX_EDITORA);
                         livro.editora[MAX_EDITORA] = '\0';
 
+                        int r1 = ERRO_CAMPOS_INVALIDOS;
                         // avaliação em curto-circuito
-                        if (lidos != 7 || cadastrar_livro(caminho_arquivo_livro, livro) != SUCESSO) {
-                                printf("Erro ao processar livro na linha %d: %s\n", numero_linha, linha);
+                        if(lidos != 7 || (r1 = cadastrar_livro(caminho_arquivo_livro, livro)) != SUCESSO) {
+                                printf("Erro ao processar livro na linha %d", numero_linha);
                         }
+
+                        if(r1 == ERRO_CAMPOS_INVALIDOS) {
+                                printf(": Campos incorretos\n");
+                        }
+                        if(r1 == ERRO_CONFLITO_ID)
+                                printf(": Código de livro já utilizado\n");
 
                 } else if (linha[0] == 'U') {
                         USUARIO usuario;
@@ -255,9 +262,16 @@ int processar_lote(
                         strncpy(usuario.nome, nome_temp, MAX_NOME);
                         usuario.nome[MAX_NOME] = '\0';
 
-                        if (lidos != 2 || cadastrar_usuario(caminho_arquivo_usuario, usuario) != SUCESSO) {
-                                printf("Erro ao processar usuário na linha %d: %s\n", numero_linha, linha);
+                        int r2 = ERRO_CAMPOS_INVALIDOS;
+                        if (lidos != 2 || (r2 = cadastrar_usuario(caminho_arquivo_usuario, usuario)) != SUCESSO) {
+                                printf("Erro ao processar usuário na linha %d", numero_linha);
                         }
+
+                        if(r2 == ERRO_CAMPOS_INVALIDOS) {
+                                printf(": Campos incorretos\n");
+                        }
+                        if(r2 == ERRO_CONFLITO_ID)
+                                printf(": Código de usuário já utilizado\n");
 
                 } else if (linha[0] == 'E') {
                         int cod_usuario, cod_livro;
@@ -274,21 +288,24 @@ int processar_lote(
                         strncpy(data_dev, data_dev_temp, MAX_DATA);
                         data_dev[MAX_DATA] = '\0';
                         if (lidos < 3) {
-                                printf("Erro ao processar empréstimo na linha %d: %s\n", numero_linha, linha);
+                                printf("Erro ao processar empréstimo na linha %d: Campos incorretos\n", numero_linha);
                         }
                         else {
+                                int r3 = ERRO_CAMPOS_INVALIDOS;
                                 if (
-                                        emprestar_livro(
+                                        (r3 = emprestar_livro(
                                                 caminho_arquivo_emprestimo,
                                                 caminho_arquivo_livro,
                                                 caminho_arquivo_usuario,
                                                 cod_usuario,
                                                 cod_livro,
                                                 data_emp
-                                        ) != SUCESSO
+                                        )) != SUCESSO
                                 ) {
-                                        printf("Erro ao emprestar livro na linha %d: %s\n", numero_linha, linha);
+                                        printf("Erro ao emprestar livro na linha %d", numero_linha);
                                 }
+                                if(r3 == ERRO_CONFLITO_ID)
+                                        printf(": Códigos de livro e usuário já utilizados\n");
                                 // Se foi fornecida a data de devolução
                                 if (lidos == 4 && strlen(data_dev) > 0) {
                                         if (
@@ -300,14 +317,14 @@ int processar_lote(
                                                         data_dev
                                                 ) != SUCESSO
                                         ) {
-                                                printf("Erro ao devolver livro na linha %d: %s\n", numero_linha, linha);
+                                                printf("Erro ao devolver livro na linha %d\n", numero_linha);
                                         }
                                 }
                         }
 
                 }
                 else {
-                        printf("Linha %d com tipo desconhecido: %s\n", numero_linha, linha);
+                        printf("Linha %d com tipo desconhecido ou em branco\n", numero_linha);
                 }
 
                 numero_linha++;
