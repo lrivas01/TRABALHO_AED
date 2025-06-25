@@ -16,6 +16,8 @@ void opcao_imprimir_livro(char* caminho_livros);
 void opcao_cadastrar_usuario (char* caminho_usuarios);
 void opcao_buscar_por_titulo (char *caminho_livros);
 void opcao_emprestar_livro(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios);
+void opcao_devolver_livro(char* caminho_emprestimos, char* caminho_livros);
+void opcao_total_cadastrados(char *caminho_livros);
 void opcao_carregar_lote(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios);
 
 int main () {
