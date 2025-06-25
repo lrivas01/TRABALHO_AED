@@ -64,7 +64,52 @@ static int escreve_no_usuario(FILE* arquivo, USUARIO* no_usuario, int posicao) {
 	return SUCESSO;
 }
 
-int cadastrar_usuario(const char *nome_arquivo, unsigned int codigo, const char *nome) {
+static int verificar_id_usuario(const char* caminho_arquivo_usuario, unsigned int codigo_usuario) {
+	int retorno = SUCESSO;
+	FILE* arquivo = fopen(caminho_arquivo_usuario, "rb");
+	if (!arquivo) {
+		return ERRO_ABRIR_ARQUIVO;
+	}
+
+	CABECALHO* cabecalho = le_cabecalho(arquivo);
+	if(!cabecalho) {
+		retorno = ERRO_LER_CABECALHO;
+		goto liberar_arquivo;
+	}
+
+	int pos = cabecalho->pos_cabeca;
+	USUARIO usuario;
+
+	while (pos != -1) {
+		if(fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(USUARIO), SEEK_SET) != 0) {
+			retorno = ERRO_ARQUIVO_SEEK;
+			goto liberar_cabecalho;
+		}
+
+		if(fread(&usuario, sizeof(USUARIO), 1, arquivo) != 1) {
+			retorno = ERRO_ARQUIVO_READ;
+			goto liberar_cabecalho;
+		}
+
+		if(usuario.codigo == codigo_usuario) {
+			retorno = ERRO_CONFLITO_ID;
+			goto liberar_cabecalho; // conflito encontrado
+		}
+
+		pos = usuario.proximo;
+	}
+liberar_cabecalho:
+	free(cabecalho);
+liberar_arquivo:
+	fclose(arquivo);
+
+	return retorno;
+}
+
+int cadastrar_usuario(const char *nome_arquivo, USUARIO usuario) {
+	if(verificar_id_usuario(nome_arquivo, usuario.codigo) == ERRO_CONFLITO_ID)
+		return ERRO_CONFLITO_ID;
+
 	int retorno = SUCESSO;
 	USUARIO* auxiliar = NULL;
 
@@ -80,10 +125,6 @@ int cadastrar_usuario(const char *nome_arquivo, unsigned int codigo, const char 
 		goto liberar_cabecalho;
 	}
 	
-	USUARIO usuario;
-	strncpy(usuario.nome, nome, MAX_NOME);
-	usuario.nome[MAX_NOME] = '\0';
-	usuario.codigo = codigo;
 	usuario.proximo = cabecalho->pos_cabeca;
 
 	if(cabecalho->pos_livre == -1) {

@@ -42,6 +42,6 @@ typedef struct usuario {
  *		- ERRO_ESCREVER_USUARIO (-14): escrever o nó de usuário no arquivo
  *		- ERRO_ESCREVER_CABECALHO (-12): falha ao escrever o cabeçalho atualizado no arquivo
  */
-int cadastrar_usuario(const char *nome_arquivo, unsigned int codigo, const char *nome);
+int cadastrar_usuario(const char *nome_arquivo, USUARIO usuario);
 
 #endif // _USUARIO_H
