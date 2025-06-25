@@ -62,7 +62,53 @@ static int escreve_no_livro(FILE* arq,LIVRO* livro,int pos){
     return SUCESSO;
 }
 
+
+static int verificar_id_livro(const char* caminho_arquivo_livro, unsigned int codigo_livro) {
+        int retorno = SUCESSO;
+        FILE* arquivo = fopen(caminho_arquivo_livro, "rb");
+        if(!arquivo) {
+                return ERRO_ABRIR_ARQUIVO;
+        }
+
+        CABECALHO* cabecalho = le_cabecalho(arquivo);
+        if(!cabecalho) {
+                retorno = ERRO_LER_CABECALHO;
+                goto liberar_arquivo;
+        }
+
+        int pos = cabecalho->pos_cabeca;
+        LIVRO livro;
+
+        while (pos != -1) {
+                if(fseek(arquivo, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET) != 0) {
+                        retorno = ERRO_ARQUIVO_SEEK;
+                        goto liberar_cabecalho;
+                }
+
+                if(fread(&livro, sizeof(LIVRO), 1, arquivo) != 1) {
+                        retorno = ERRO_ARQUIVO_READ;
+                        goto liberar_cabecalho;
+                }
+
+                if(livro.codigo == codigo_livro) {
+                        retorno = ERRO_CONFLITO_ID;
+                        goto liberar_cabecalho; // conflito encontrado
+                }
+
+                pos = livro.prox;
+        }
+liberar_cabecalho:
+        free(cabecalho);
+liberar_arquivo:
+        fclose(arquivo);
+
+        return retorno;
+}
+
 int cadastrar_livro(const char *nome_arquivo, LIVRO novo) {
+    if(verificar_id_livro(nome_arquivo, novo.codigo) == ERRO_CONFLITO_ID)
+        return ERRO_CONFLITO_ID;
+
     FILE *arq = fopen(nome_arquivo, "rb+");
     if (!arq) return ERRO_ABRIR_ARQUIVO;
 
