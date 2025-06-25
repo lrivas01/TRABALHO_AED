@@ -305,11 +305,8 @@ void opcao_devolver_livro (char* caminho_emprestimos, char*caminho_livros) {
 
 void opcao_total_cadastrados(char *caminho_livros) {
         int quantidade_total_livros = calcular_total_livros(caminho_livros);
-        if(quantidade_total_livros<0) {
+        if(quantidade_total_livros!=0) {
                 printf("Erro ao calcular total de livros\n");
-        }
-        else {
-                printf("Quantia total de Livros cadastrados: %d\n", quantidade_total_livros);
         }
 }
 
