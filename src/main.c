@@ -49,7 +49,7 @@ int main () {
 
                 int r = inicializar_base_de_dados(diretorio);
                 if (r < 0) {
-                        printf("Nao foi possível inicializar os arquivos no diretorio '%s'.\n", diretorio);
+                        printf("Nao foi possivel inicializar os arquivos no diretorio '%s'.\n", diretorio);
                         printf("Verifique se o caminho existe e se ha permissoes de escrita/leitura.\n\n");
                 }
                 else {
