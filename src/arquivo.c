@@ -15,6 +15,48 @@
 // Em caso de alteração da constante MAX_BUFFER_TEMP, alterar tamanho do sscanf na função 'processar_lote' para MAX_BUFFER_TEMP - 1
 #define MAX_BUFFER_TEMP         256
 
+/*
+ * inicializar_arquivo - função interna que inicializa um arquivo binário com cabeçalho
+ *
+ * @caminho - caminho completo para o arquivo binário a ser inicializado
+ *
+ * Pré-condições:
+ *      - Caminho para o arquivo deve ser válido.
+ *      - Deve ser possível abrir ou criar o arquivo em modo leitura/escrita.
+ * Pós-condições:
+ *      - Caso o arquivo não exista, um arquivo binário é criado com a estrutura de cabeçalho.
+ *      - Caso o arquivo exista, verifica-se se possui um cabeçalho válido. Se não tiver, cria um.
+ *      - Caso o arquivo exista e tenha um cabeçalho válido, nada é feito.
+ *      - Retorna SUCESSO (0) em caso de sucesso.
+ *      - Retorna valores negativos em caso de erro:
+ *              - ERRO_ABRIR_ARQUIVO (-10): o arquivo não pôde ser aberto (falta de permissões ou diretório inválido).
+ *              - ERRO_ARQUIVO_SEEK (-1): não foi possível fazer posicionamento no arquivo (erro no fseek).
+ *              - ERRO_CRIAR_LISTA (-22): não foi possível criar um cabeçalho novo no arquivo.
+ */
+static int inicializar_arquivo(const char* caminho) {
+        FILE* arquivo = fopen(caminho, "a+b");  // cria se não existir
+        if (arquivo == NULL) 
+                return ERRO_ABRIR_ARQUIVO;
+
+        // voltar para o início do arquivo
+        if(fseek(arquivo, 0, SEEK_SET) != 0) {
+                fclose(arquivo);
+                return ERRO_ARQUIVO_SEEK;
+        }
+
+        CABECALHO cabecalho;
+        if (fread(&cabecalho, sizeof(CABECALHO), 1, arquivo) != 1) {
+                // arquivo novo ou corrompido, criar novo cabeçalho
+                int retorno = cria_lista_vazia(arquivo);
+                if(retorno < 0) {
+                        fclose(arquivo);
+                        return ERRO_CRIAR_LISTA;
+                }
+        }
+
+        fclose(arquivo);
+        return SUCESSO;
+}
 
 /*
  * cria_lista_vazia - Inicializa um arquivo binário com uma lista encadeada vazia
@@ -99,48 +141,6 @@ int escreve_cabecalho(FILE* arq,CABECALHO* cab) {
         return SUCESSO;
 }
 
-/*
- * inicializar_arquivo - função interna que inicializa um arquivo binário com cabeçalho
- *
- * @caminho - caminho completo para o arquivo binário a ser inicializado
- *
- * Pré-condições:
- *      - Caminho para o arquivo deve ser válido.
- *      - Deve ser possível abrir ou criar o arquivo em modo leitura/escrita.
- * Pós-condições:
- *      - Caso o arquivo não exista, um arquivo binário é criado com a estrutura de cabeçalho.
- *      - Caso o arquivo exista, verifica-se se possui um cabeçalho válido. Se não tiver, cria um.
- *      - Caso o arquivo exista e tenha um cabeçalho válido, nada é feito.
- *      - Retorna SUCESSO (0) em caso de sucesso.
- *      - Retorna valores negativos em caso de erro:
- *              - ERRO_ABRIR_ARQUIVO (-10): o arquivo não pôde ser aberto (falta de permissões ou diretório inválido).
- *              - ERRO_ARQUIVO_SEEK (-1): não foi possível fazer posicionamento no arquivo (erro no fseek).
- *              - ERRO_CRIAR_LISTA (-22): não foi possível criar um cabeçalho novo no arquivo.
- */
-static int inicializar_arquivo(const char* caminho) {
-        FILE* arquivo = fopen(caminho, "a+b");  // cria se não existir
-        if (arquivo == NULL) 
-                return ERRO_ABRIR_ARQUIVO;
-
-        // voltar para o início do arquivo
-        if(fseek(arquivo, 0, SEEK_SET) != 0) {
-                fclose(arquivo);
-                return ERRO_ARQUIVO_SEEK;
-        }
-
-        CABECALHO cabecalho;
-        if (fread(&cabecalho, sizeof(CABECALHO), 1, arquivo) != 1) {
-                // arquivo novo ou corrompido, criar novo cabeçalho
-                int retorno = cria_lista_vazia(arquivo);
-                if(retorno < 0) {
-                        fclose(arquivo);
-                        return ERRO_CRIAR_LISTA;
-                }
-        }
-
-        fclose(arquivo);
-        return SUCESSO;
-}
 
 /*
  * inicializar_base_de_dados - inicializa arquivos binários de usuários, livros e empréstimos
@@ -197,6 +197,37 @@ int inicializar_base_de_dados(char *caminho_diretorio) {
         return SUCESSO;
 }
 
+/*
+ * processar_lote - le e executa comandos a partir de um arquivo texto de lote
+ *
+ * @caminho_arquivo_lote - caminho para o arquivo texto contendo comandos em lote
+ * @caminho_arquivo_emprestimo - caminho para o arquivo binario de emprestimos
+ * @caminho_arquivo_livro - caminho para o arquivo binario de livros
+ * @caminho_arquivo_usuario - caminho para o arquivo binario de usuarios
+ *
+ * Pre-condicoes:
+ *      - Os caminhos devem ser validos e os arquivos devem existir (ou ser criados se necessario).
+ *      - O arquivo de lote deve conter linhas com comandos iniciados por:
+ *              'L' para cadastro de livro
+ *              'U' para cadastro de usuario
+ *              'E' para emprestimo (e opcionalmente devolucao)
+ *      - Campos nas linhas devem seguir o formato esperado.
+ *
+ * Pos-condicoes:
+ *      - Os comandos sao processados sequencialmente:
+ *              - Linhas iniciadas por 'L' cadastram um livro.
+ *              - Linhas iniciadas por 'U' cadastram um usuario.
+ *              - Linhas iniciadas por 'E' realizam emprestimo, e devolucao se houver data.
+ *      - Informacoes sao normalizadas com trim e limitadas ao tamanho maximo de cada campo.
+ *      - Mensagens de erro sao impressas para entradas mal formatadas ou com conflitos de ID.
+ *      - Retorna SUCESSO (0) ao final do processamento, mesmo com erros parciais.
+ *
+ * Erros tratados internamente:
+ *      - ERRO_ABRIR_ARQUIVO (-10): erro ao abrir o arquivo de lote.
+ *      - ERRO_CAMPOS_INVALIDOS (-24): entrada mal formatada ou com campos ausentes.
+ *      - ERRO_CONFLITO_ID (-23): ID de livro ou usuario ja existente.
+ *      - Outros erros de leitura/escrita sao tratados internamente pelas funcoes chamadas.
+ */
 int processar_lote(
         const char *caminho_arquivo_lote,
         const char* caminho_arquivo_emprestimo,

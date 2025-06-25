@@ -66,6 +66,26 @@ static EMPRESTIMO* le_no_emprestimo(FILE* arquivo_emprestimo, int posicao) {
         return no_emprestimo;
 }
 
+/*
+ * verificar_emprestimo_existente - verifica se o emprestimo ja foi registrado
+ *
+ * @caminho_arquivo_emprestimo - caminho completo para o arquivo binário de empréstimo
+ * @codigo_usuario - código do usuario associado ao empréstimo
+ * @codigo_livro - código do livro associado ao empréstimo
+ *
+ * Pré-condições:
+ *      - O caminho para o arquivo deve ser válido e pode ser lido.
+ *      - O arquivo de empréstimo deve ser inicializado (conter cabeçalho);
+ *      - Os códigos do usuário e livro devem ser válidos (inteiros sem sinal).
+ * Pós-condições:
+ *      - Retorna SUCESSO caso não tenha conflito.
+ *      - Retorna valores negativos em caso de erro:
+ *              - ERRO_CONFLITO_ID: Caso seja encontrado um conflito (emprestimo sem devolução associado ao usuário e livro).
+ *              - ERRO_ABRIR_ARQUIVO: Caso não seja possível abrir o arquivo informado.
+ *              - ERRO_LER_CABECALHO: Caso não seja possível ler o cabeçalho do arquivo.
+ *              - ERRO_ARQUIVO_SEEK: Erro no posicionamento do arquivo (erro no fseek).
+ *              - ERRO_ARQUIVO_READ: Erro na leitura do arquivo (erro no fwrite).
+ */
 static int verificar_emprestimo_existente(const char* caminho_arquivo_emprestimo, unsigned int codigo_usuario, unsigned int codigo_livro) {
         int retorno = SUCESSO;
         FILE* arquivo = fopen(caminho_arquivo_emprestimo, "rb");
@@ -140,6 +160,8 @@ liberar_arquivo:
  *		- ERRO_LIVROS_ESGOTADOS (-17): não há unidades disponíveis para empréstimo.
  *		- ERRO_ESCREVER_EMPRESTIMO (-18): não foi possível registrar o empréstimo na lista encadeada.
  *		- ERRO_LER_EMPRESTIMO (-19): não foi possível ler nó de empréstimo na lista encadeada.
+ *		- ERRO_CONFLITO_ID: empréstimo já foi registrado previamente.
+ *		- ERRO_LIVROS_ESGOTADOS: não há livros disponíveis para empréstimo.
  */
 int emprestar_livro(
         const char* caminho_arquivo_emprestimo, 
@@ -644,5 +666,3 @@ liberar_arquivo_emprestimo:
 
         return retorno;
 }
-
-

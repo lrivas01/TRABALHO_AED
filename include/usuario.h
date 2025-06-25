@@ -19,23 +19,22 @@ typedef struct usuario {
 	int proximo;
 } USUARIO;
 
-/**
+/*
  * cadastrar_usuario - cadastra um novo usuário no arquivo de usuários em lista encadeada
  *
  * @nome_arquivo - caminho para o arquivo binário onde os usuários são armazenados
- * @codigo - identificador único do novo usuário
- * @nome - nome do usuário a ser cadastrado (string terminada em '\0')
+ * @usuario - estrutura USUARIO contendo informações do usuário que será registrado
  *
  * Pré-condições:
  *	- O arquivo especificado por nome_arquivo deve existir e ser acessível em modo leitura e escrita.
  *	- O arquivo deve conter um cabeçalho válido para gerenciar a lista encadeada de usuários.
- *	- O nome do usuário deve ser uma string válida com no máximo MAX_NOME caracteres.
  *
  * Pós-condições:
  *	- Um novo registro de usuário é inserido no arquivo, reutilizando posições livres se existirem.
  *	- O cabeçalho do arquivo é atualizado para refletir a nova cabeça da lista encadeada e possíveis posições livres.
  *	- Retorna SUCESSO (0) em caso de sucesso.
  *	- Retorna valores negativos em caso de erro:
+ *		- ERRO_CONFLITO_ID: O código do usuário já foi utilizado
  *		- ERRO_ABRIR_ARQUIVO (-10): falha ao abrir o arquivo
  *		- ERRO_LER_CABECALHO (-11): falha ao ler o cabeçalho do arquivo
  *		- ERRO_LER_USUARIO (-13): falha ao ler o nó do usuário no arquivo

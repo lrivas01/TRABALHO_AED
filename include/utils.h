@@ -20,12 +20,12 @@
  * @caminho - string contendo o caminho a ser verificado
  *
  * Pre-condicoes:
- *   - O ponteiro 'caminho' deve ser valido (nao nulo).
+ *	- O ponteiro 'caminho' deve ser valido (nao nulo).
  *
  * Pos-condicoes:
- *   - Retorna 1 se o caminho termina com '/' (Linux) ou '\\' ou '/' (Windows).
- *   - Retorna 0 se nao termina com separador.
- *   - Retorna -1 se a string for nula ou vazia.
+ *	- Retorna 1 se o caminho termina com '/' (Linux) ou '\\' ou '/' (Windows).
+ *	- Retorna 0 se nao termina com separador.
+ *	- Retorna -1 se a string for nula ou vazia.
  */
 int caminho_termina_com_barra(const char* caminho);
 
@@ -35,11 +35,11 @@ int caminho_termina_com_barra(const char* caminho);
  * @caminho - string contendo o caminho a ser normalizado (modificado in-place)
  *
  * Pre-condicoes:
- *   - A string deve estar corretamente alocada e terminada com '\0'.
+ *	- A string deve estar corretamente alocada e terminada com '\0'.
  *
  * Pos-condicoes:
- *   - Em sistemas Windows, todos os '/' sao convertidos para '\\'.
- *   - Em sistemas Unix/Linux, todos os '\\' sao convertidos para '/'.
+ *	- Em sistemas Windows, todos os '/' sao convertidos para '\\'.
+ *	- Em sistemas Unix/Linux, todos os '\\' sao convertidos para '/'.
  */
 void normalizar_para_sep(char* caminho);
 
@@ -49,11 +49,11 @@ void normalizar_para_sep(char* caminho);
  * @str - ponteiro para string a ser modificada (in-place)
  *
  * Pre-condicoes:
- *   - str deve ser uma string valida, com terminador '\0'.
+ *	- str deve ser uma string valida, com terminador '\0'.
  *
  * Pos-condicoes:
- *   - Todos os espacos iniciais e finais serao removidos.
- *   - O conteudo da string sera deslocado se necessario.
+ *	- Todos os espacos iniciais e finais serao removidos.
+ *	- O conteudo da string sera deslocado se necessario.
  */
 void trim(char* str);
 
@@ -63,11 +63,11 @@ void trim(char* str);
  * Nao recebe parametros.
  *
  * Pre-condicoes:
- *   - Deve haver entrada disponivel no stdin.
+ *	- Deve haver entrada disponivel no stdin.
  *
  * Pos-condicoes:
- *   - Retorna o valor lido se for um numero valido.
- *   - Retorna 0 em caso de erro, valor negativo ou entrada invalida.
+ *	- Retorna o valor lido se for um numero valido.
+ *	- Retorna 0 em caso de erro, valor negativo ou entrada invalida.
  */
 unsigned int ler_unsigned_int_direto();
 
@@ -78,27 +78,27 @@ unsigned int ler_unsigned_int_direto();
  * @nome_arquivo - nome do arquivo a ser concatenado ao caminho
  *
  * Pre-condicoes:
- *   - caminho_base deve ter espaco suficiente para conter o resultado.
- *   - nome_arquivo deve ser uma string valida.
+ *	- caminho_base deve ter espaco suficiente para conter o resultado.
+ *	- nome_arquivo deve ser uma string valida.
  *
  * Pos-condicoes:
- *   - caminho_base sera normalizado e tera a barra final adicionada, se necessario.
- *   - nome_arquivo sera concatenado ao caminho_base.
+ *	- caminho_base sera normalizado e tera a barra final adicionada, se necessario.
+ *	- nome_arquivo sera concatenado ao caminho_base.
  */
 void construir_caminho_completo(char* caminho_base, const char* nome_arquivo);
 
 /*
- * obter_data_atual - obt�m a data atual formatada como string
+ * obter_data_atual - obtém a data atual formatada como string
  *
- * @buffer - buffer onde a data ser� escrita
- * @tamanho - tamanho m�ximo do buffer
+ * @buffer - buffer onde a data será escrita
+ * @tamanho - tamanho máximo do buffer
  *
- * Pr�-condi��es:
- *   - 'buffer' deve ser um ponteiro v�lido com espa�o suficiente.
- * P�s-condi��es:
- *   - Em caso de sucesso, grava a data atual no formato DD/MM/AAAA no buffer.
- *   - Retorna SUCESSO (0) se a opera��o for bem-sucedida.
- *   - Retorna ERRO_OBTER_DATA (-12) se n�o for poss�vel obter a data.
+ * Pré-condições:
+ *	- 'buffer' deve ser um ponteiro v�lido com espa�o suficiente.
+ * Pós-condições:
+ *	- Em caso de sucesso, grava a data atual no formato DD/MM/AAAA no buffer.
+ *	- Retorna SUCESSO (0) se a operação for bem-sucedida.
+ *	- Retorna ERRO_OBTER_DATA (-12) se não for possível obter a data.
  */
 int obter_data_atual(char *buffer, size_t tamanho);
 
@@ -108,11 +108,11 @@ int obter_data_atual(char *buffer, size_t tamanho);
  * @resultado - ponteiro onde o valor inteiro sera armazenado
  *
  * Pre-condicoes:
- *   - resultado deve ser um ponteiro valido.
+ *	- resultado deve ser um ponteiro valido.
  *
  * Pos-condicoes:
- *   - Retorna 1 se a entrada for valida e um inteiro foi armazenado.
- *   - Retorna 0 em caso de erro de leitura ou se a entrada for invalida.
+ *	- Retorna 1 se a entrada for valida e um inteiro foi armazenado.
+ *	- Retorna 0 em caso de erro de leitura ou se a entrada for invalida.
  */
 int ler_inteiro_seguro(int *resultado);
 
@@ -122,11 +122,11 @@ int ler_inteiro_seguro(int *resultado);
  * @saida - ponteiro onde o valor lido sera armazenado
  *
  * Pre-condicoes:
- *   - saida deve ser um ponteiro valido.
+ *	- saida deve ser um ponteiro valido.
  *
  * Pos-condicoes:
- *   - Retorna 1 se um numero valido foi lido e armazenado.
- *   - Retorna 0 se a entrada for invalida ou negativa.
+ *	- Retorna 1 se um numero valido foi lido e armazenado.
+ *	- Retorna 0 se a entrada for invalida ou negativa.
  */
 int ler_unsigned_int_com_zero(unsigned int *saida);
 
@@ -136,11 +136,11 @@ int ler_unsigned_int_com_zero(unsigned int *saida);
  * @linha - ponteiro para a string a ser verificada
  *
  * Pre-condicoes:
- *   - linha deve ser uma string valida.
+ *	- linha deve ser uma string valida.
  *
  * Pos-condicoes:
- *   - Retorna 1 se a string estiver vazia ou conter apenas espacos/tabs.
- *   - Retorna 0 se houver qualquer caractere nao branco.
+ *	- Retorna 1 se a string estiver vazia ou conter apenas espacos/tabs.
+ *	- Retorna 0 se houver qualquer caractere nao branco.
  */
 int linha_em_branco(const char* linha);
 #endif // UTILS_H

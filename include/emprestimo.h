@@ -55,6 +55,8 @@ typedef struct {
  *		- ERRO_LIVROS_ESGOTADOS (-17): não há unidades disponíveis para empréstimo.
  *		- ERRO_ESCREVER_EMPRESTIMO (-18): não foi possível registrar o empréstimo na lista encadeada.
  *		- ERRO_LER_EMPRESTIMO (-19): não foi possível ler nó de empréstimo na lista encadeada.
+ *		- ERRO_CONFLITO_ID: empréstimo já foi registrado previamente.
+ *		- ERRO_LIVROS_ESGOTADOS: não há livros disponíveis para empréstimo.
  */
 int emprestar_livro(
 	const char* caminho_arquivo_emprestimo,

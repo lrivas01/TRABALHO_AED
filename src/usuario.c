@@ -64,6 +64,23 @@ static int escreve_no_usuario(FILE* arquivo, USUARIO* no_usuario, int posicao) {
 	return SUCESSO;
 }
 
+/*
+ * verificar_id_usuario - verifica se código do usuário já foi registrado
+ *
+ * @caminho_arquivo_usuario - caminho completo para o arquivo binário que armazena usuários
+ *
+ * Pré-condições:
+ *	- Caminho para o arquivo deve ser válido e pode ser aberto para leitura.
+ *	- Arquivo deve ser inicializado (conter cabeçalho).
+ * Pós-condições:
+ *	- Retorna SUCESSO se não for encontrado conflito.
+ *	- Retorna valores negativos em caso de erro:
+ *		- ERRO_CONFLITO_ID: foi identificado conflito.
+ *		- ERRO_ABRIR_ARQUIVO: não foi possível abrir o arquivo.
+ *		- ERRO_LER_CABECALHO: não foi possível ler o cabeçalho do arquivo.
+ *		- ERRO_ARQUIVO_SEEK: erro no posicionamento do arquivo (fseek).
+ *		- ERRO_ARQUIVO_READ: erro na leitura do arquivo (fread).
+ */
 static int verificar_id_usuario(const char* caminho_arquivo_usuario, unsigned int codigo_usuario) {
 	int retorno = SUCESSO;
 	FILE* arquivo = fopen(caminho_arquivo_usuario, "rb");
@@ -106,6 +123,28 @@ liberar_arquivo:
 	return retorno;
 }
 
+/*
+ * cadastrar_usuario - cadastra um novo usuário no arquivo de usuários em lista encadeada
+ *
+ * @nome_arquivo - caminho para o arquivo binário onde os usuários são armazenados
+ * @usuario - estrutura USUARIO contendo informações do usuário que será registrado
+ *
+ * Pré-condições:
+ *	- O arquivo especificado por nome_arquivo deve existir e ser acessível em modo leitura e escrita.
+ *	- O arquivo deve conter um cabeçalho válido para gerenciar a lista encadeada de usuários.
+ *
+ * Pós-condições:
+ *	- Um novo registro de usuário é inserido no arquivo, reutilizando posições livres se existirem.
+ *	- O cabeçalho do arquivo é atualizado para refletir a nova cabeça da lista encadeada e possíveis posições livres.
+ *	- Retorna SUCESSO (0) em caso de sucesso.
+ *	- Retorna valores negativos em caso de erro:
+ *		- ERRO_CONFLITO_ID: O código do usuário já foi utilizado
+ *		- ERRO_ABRIR_ARQUIVO (-10): falha ao abrir o arquivo
+ *		- ERRO_LER_CABECALHO (-11): falha ao ler o cabeçalho do arquivo
+ *		- ERRO_LER_USUARIO (-13): falha ao ler o nó do usuário no arquivo
+ *		- ERRO_ESCREVER_USUARIO (-14): escrever o nó de usuário no arquivo
+ *		- ERRO_ESCREVER_CABECALHO (-12): falha ao escrever o cabeçalho atualizado no arquivo
+ */
 int cadastrar_usuario(const char *nome_arquivo, USUARIO usuario) {
 	if(verificar_id_usuario(nome_arquivo, usuario.codigo) == ERRO_CONFLITO_ID)
 		return ERRO_CONFLITO_ID;

@@ -25,7 +25,8 @@ typedef enum {
 	ERRO_INICIALIZAR_ARQUIVO	= -22,
 	ERRO_CONFLITO_ID		= -23,
 	ERRO_CAMPOS_INVALIDOS		= -24,
-	ERRO_OBTER_DATA			= -25
+	ERRO_OBTER_DATA			= -25,
+	ERRO_DATA_INVALIDA		= -26
 } codigo_erro;
 
 #endif // _ERROS_H
