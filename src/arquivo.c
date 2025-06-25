@@ -1,6 +1,9 @@
 #include "../include/arquivo.h"
 #include "../include/erros.h"
 #include "../include/utils.h"
+#include "../include/emprestimo.h"
+#include "../include/livro.h"
+#include "../include/usuario.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +12,9 @@
 #define NOME_ARQUIVO_EMPRESTIMO "emprestimo.dat"
 #define NOME_ARQUIVO_LIVRO      "livro.dat"
 #define NOME_ARQUIVO_USUARIO    "usuario.dat"
+// Em caso de alteração da constante MAX_BUFFER_TEMP, alterar tamanho do sscanf na função 'processar_lote' para MAX_BUFFER_TEMP - 1
+#define MAX_BUFFER_TEMP         256
+
 
 /*
  * cria_lista_vazia - Inicializa um arquivo binário com uma lista encadeada vazia
@@ -188,5 +194,126 @@ int inicializar_base_de_dados(char *caminho_diretorio) {
                 return ERRO_INICIALIZAR_ARQUIVO;
         }
 
+        return SUCESSO;
+}
+
+int processar_lote(
+        const char *caminho_arquivo_lote,
+        const char* caminho_arquivo_emprestimo,
+        const char* caminho_arquivo_livro,
+        const char* caminho_arquivo_usuario
+) {
+        FILE* arquivo = fopen(caminho_arquivo_lote, "r");
+        if (!arquivo) {
+                return ERRO_ABRIR_ARQUIVO;
+        }
+
+        char linha[512];
+        int numero_linha = 1;
+
+        while (fgets(linha, sizeof(linha), arquivo)) {
+                linha[strcspn(linha, "\n")] = '\0';
+                trim(linha);
+                if (linha[0] == 'L') {
+                        LIVRO livro;
+                        char titulo_temp[MAX_BUFFER_TEMP], autor_temp[MAX_BUFFER_TEMP], editora_temp[MAX_BUFFER_TEMP];
+
+                        int lidos = sscanf(linha + 2, "%u;%255[^;];%255[^;];%255[^;];%u;%u;%u",
+                                &livro.codigo,
+                                titulo_temp,
+                                autor_temp,
+                                editora_temp,
+                                &livro.edicao,
+                                &livro.ano,
+                                &livro.exemplares
+                        );
+                        trim(titulo_temp);
+                        trim(autor_temp);
+                        trim(editora_temp);
+
+                        strncpy(livro.titulo, titulo_temp, MAX_TITULO);
+                        livro.titulo[MAX_TITULO] = '\0';
+
+                        strncpy(livro.autor, autor_temp, MAX_AUTOR);
+                        livro.autor[MAX_AUTOR] = '\0';
+
+                        strncpy(livro.editora, editora_temp, MAX_EDITORA);
+                        livro.editora[MAX_EDITORA] = '\0';
+
+                        // avaliação em curto-circuito
+                        if (lidos != 7 || cadastrar_livro(caminho_arquivo_livro, livro) != SUCESSO) {
+                                printf("Erro ao processar livro na linha %d: %s\n", numero_linha, linha);
+                        }
+
+                } else if (linha[0] == 'U') {
+                        int codigo;
+                        char nome[MAX_NOME + 1];
+                        char nome_temp[MAX_BUFFER_TEMP];
+
+                        int lidos = sscanf(linha + 2, "%u;%255[^\n]", &codigo, nome_temp);
+
+                        trim(nome_temp);
+                        strncpy(nome, nome_temp, MAX_NOME);
+                        nome[MAX_NOME] = '\0';
+
+                        if (lidos != 2 || cadastrar_usuario(caminho_arquivo_usuario, codigo, nome) != SUCESSO) {
+                                printf("Erro ao processar usuário na linha %d: %s\n", numero_linha, linha);
+                        }
+
+                } else if (linha[0] == 'E') {
+                        int cod_usuario, cod_livro;
+                        char data_emp[MAX_DATA + 1], data_dev[MAX_DATA + 1] = "";
+                        char data_emp_temp[MAX_BUFFER_TEMP], data_dev_temp[MAX_BUFFER_TEMP] = "";
+
+                        int lidos = sscanf(linha + 2, "%u;%u;%255[^;];%255[^\n]", &cod_usuario, &cod_livro, data_emp_temp, data_dev_temp);
+
+                        trim(data_emp_temp);
+                        trim(data_dev_temp);
+
+                        strncpy(data_emp, data_emp_temp, MAX_DATA);
+                        data_emp[MAX_DATA] = '\0';
+                        strncpy(data_dev, data_dev_temp, MAX_DATA);
+                        data_dev[MAX_DATA] = '\0';
+                        if (lidos < 3) {
+                                printf("Erro ao processar empréstimo na linha %d: %s\n", numero_linha, linha);
+                        }
+                        else {
+                                if (
+                                        emprestar_livro(
+                                                caminho_arquivo_emprestimo,
+                                                caminho_arquivo_livro,
+                                                caminho_arquivo_usuario,
+                                                cod_usuario,
+                                                cod_livro,
+                                                data_emp
+                                        ) != SUCESSO
+                                ) {
+                                        printf("Erro ao emprestar livro na linha %d: %s\n", numero_linha, linha);
+                                }
+                                // Se foi fornecida a data de devolução
+                                if (lidos == 4 && strlen(data_dev) > 0) {
+                                        if (
+                                                devolver_livro(
+                                                        caminho_arquivo_emprestimo,
+                                                        caminho_arquivo_livro,
+                                                        cod_usuario,
+                                                        cod_livro,
+                                                        data_dev
+                                                ) != SUCESSO
+                                        ) {
+                                                printf("Erro ao devolver livro na linha %d: %s\n", numero_linha, linha);
+                                        }
+                                }
+                        }
+
+                }
+                else {
+                        printf("Linha %d com tipo desconhecido: %s\n", numero_linha, linha);
+                }
+
+                numero_linha++;
+        }
+
+        fclose(arquivo);
         return SUCESSO;
 }

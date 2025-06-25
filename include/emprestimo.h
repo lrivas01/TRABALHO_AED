@@ -124,5 +124,4 @@ int listar_livros_emprestados(
 	const char* caminho_arquivo_livro,
 	const char* caminho_arquivo_usuario
 );
-
 #endif

@@ -1,6 +1,6 @@
 #include "../include/utils.h"
 #include <string.h>
-
+#include <ctype.h>
 int caminho_termina_com_barra(const char *caminho) {
         if(caminho == NULL || caminho[0] == '\0')
                 return -1;
@@ -29,5 +29,31 @@ void normalizar_para_sep(char* caminho) {
         }
     }
 #endif
+}
+
+
+void trim(char *str) {
+    if (!str) return;
+
+    // Remover espaços do início
+    char *inicio = str;
+    while (isspace((unsigned char)*inicio)) inicio++;
+
+    // Se a string for só espaços
+    if (*inicio == '\0') {
+        str[0] = '\0';
+        return;
+    }
+
+    // Remover espaços do final
+    char *fim = inicio + strlen(inicio) - 1;
+    while (fim > inicio && isspace((unsigned char)*fim)) fim--;
+
+    // Novo final de string
+    *(fim + 1) = '\0';
+
+    // Copiar resultado para o início da string
+    if (str != inicio)
+        memmove(str, inicio, fim - inicio + 2);  // +2 pra incluir '\0'
 }
 

@@ -107,11 +107,6 @@ int emprestar_livro(
         const char* data_emprestimo
 ) {
         int retorno = SUCESSO;
-        EMPRESTIMO emprestimo;
-        emprestimo.codigo_livro = codigo_livro;
-        emprestimo.codigo_usuario = codigo_usuario;
-        strncpy(emprestimo.data_emprestimo, data_emprestimo, MAX_DATA);
-        emprestimo.data_devolucao[0] = '\0';
 
         // abrir arquivos
         FILE* arquivo_emprestimo = fopen(caminho_arquivo_emprestimo, "r+b");
@@ -213,6 +208,13 @@ int emprestar_livro(
                 retorno = ERRO_LER_CABECALHO;
                 goto liberar_cabecalho_livro;
         }
+
+        EMPRESTIMO emprestimo;
+        emprestimo.codigo_livro = codigo_livro;
+        emprestimo.codigo_usuario = codigo_usuario;
+        strncpy(emprestimo.data_emprestimo, data_emprestimo, MAX_DATA);
+        emprestimo.data_devolucao[0] = '\0';
+        emprestimo.proximo = cabecalho_emprestimo->pos_cabeca;
 
         if(cabecalho_emprestimo->pos_livre == -1) {
                 if(escreve_no_emprestimo(arquivo_emprestimo, &emprestimo, cabecalho_emprestimo->pos_topo) != 0) {
@@ -377,6 +379,8 @@ int devolver_livro(
 
                 if(no_livro_atual.codigo == codigo_livro)
                         break;
+
+                posicao_atual_livro = no_livro_atual.prox;
         }
         if(posicao_atual_livro == -1) {
                 retorno = ERRO_ENCONTRAR_LIVRO;
@@ -588,3 +592,5 @@ liberar_arquivo_emprestimo:
 
         return retorno;
 }
+
+

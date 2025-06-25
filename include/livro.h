@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-#define MAX_TITULO 151
-#define MAX_AUTOR 201
-#define MAX_EDITORA 51
+#define MAX_TITULO 150
+#define MAX_AUTOR 200
+#define MAX_EDITORA 50
 
 /*
  * LIVRO - struct que armazena informações do livro
@@ -21,9 +21,9 @@
  */
 typedef struct {
     int codigo;
-    char titulo[MAX_TITULO];
-    char autor[MAX_AUTOR];
-    char editora[MAX_EDITORA];
+    char titulo[MAX_TITULO + 1];
+    char autor[MAX_AUTOR + 1];
+    char editora[MAX_EDITORA + 1];
     int edicao;
     int ano;
     int exemplares;
