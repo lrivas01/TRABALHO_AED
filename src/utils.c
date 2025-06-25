@@ -43,17 +43,13 @@ unsigned int ler_unsigned_int_direto() {
     char *endptr;
     unsigned long valor;
 
-    printf("Digite um número: ");
-
     if (!fgets(buffer, sizeof(buffer), stdin)) {
-        printf("Erro na leitura da entrada!\n");
         return 0; // retorna 0 em caso de erro
     }
 
     buffer[strcspn(buffer, "\n")] = '\0';
 
     if (buffer[0] == '-') {
-        printf("Número negativo não é válido!\n");
         return 0;
     }
 
@@ -61,12 +57,10 @@ unsigned int ler_unsigned_int_direto() {
     valor = strtoul(buffer, &endptr, 10);
 
     if (endptr == buffer || *endptr != '\0' || errno == ERANGE) {
-        printf("Entrada inválida! Digite apenas números.\n");
         return 0;
     }
 
     if (valor > UINT_MAX) {
-        printf("Número muito grande!\n");
         return 0;
     }
 
@@ -125,5 +119,66 @@ int obter_data_atual(char *buffer, size_t tamanho) {
         return ERRO_OBTER_DATA;
     }
     return SUCESSO;
+}
+int ler_inteiro_seguro(int *resultado) {
+    char buffer[100];
+
+    if (!fgets(buffer, sizeof(buffer), stdin)) {
+        return 0;
+    }
+
+    // Remove o '\n' do final, se existir
+    buffer[strcspn(buffer, "\n")] = 0;
+
+    // Verifica se a string é composta só por dígitos (e opcional sinal)
+    char *ptr = buffer;
+    if (*ptr == '-' || *ptr == '+') ptr++;
+
+    while (*ptr) {
+        if (!isdigit(*ptr)) return 0;
+        ptr++;
+    }
+
+    // Converte para inteiro
+    return sscanf(buffer, "%d", resultado) == 1;
+}
+int ler_unsigned_int_com_zero(unsigned int *saida) {
+    char buffer[32];
+    char *endptr;
+    unsigned long valor;
+
+    if (!fgets(buffer, sizeof(buffer), stdin)) {
+        return 0; // erro
+    }
+
+    buffer[strcspn(buffer, "\n")] = '\0';
+
+    if (buffer[0] == '-') {
+        return 0;
+    }
+
+    errno = 0;
+    valor = strtoul(buffer, &endptr, 10);
+
+    if (endptr == buffer || *endptr != '\0' || errno == ERANGE) {
+        return 0;
+    }
+
+    if (valor > UINT_MAX) {
+        return 0;
+    }
+
+    *saida = (unsigned int)valor;
+    return 1; // sucesso
+}
+
+int linha_em_branco(const char *linha) {
+    while (*linha) {
+        if (!isspace((unsigned char)*linha)) {
+            return 0;  // encontrou um caractere não-branco
+        }
+        linha++;
+    }
+    return 1;  // só havia espaços/brancos
 }
 

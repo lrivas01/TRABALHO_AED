@@ -19,5 +19,7 @@ void trim(char* str);
 unsigned int ler_unsigned_int_direto();
 void construir_caminho_completo(char* caminho_base, const char* nome_arquivo);
 int obter_data_atual(char *buffer, size_t tamanho);
-
+int ler_inteiro_seguro(int *resultado);
+int ler_unsigned_int_com_zero(unsigned int *saida);
+int linha_em_branco(const char* linha);
 #endif // UTILS_H

@@ -317,14 +317,15 @@ int processar_lote(
                                                         data_dev
                                                 ) != SUCESSO
                                         ) {
-                                                printf("Erro ao devolver livro na linha %d\n", numero_linha);
+                                                printf("\nErro ao devolver livro na linha %d\n", numero_linha);
                                         }
                                 }
                         }
 
                 }
                 else {
-                        printf("Linha %d com tipo desconhecido ou em branco\n", numero_linha);
+                        if(!linha_em_branco(linha))
+                                printf("Linha %d com tipo desconhecido: \"%s\"\n", numero_linha, linha);
                 }
 
                 numero_linha++;
