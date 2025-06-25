@@ -106,8 +106,8 @@ liberar_arquivo:
 	return retorno;
 }
 
-int cadastrar_usuario(const char *nome_arquivo, unsigned int codigo, const char *nome) {
-	if(verificar_id_usuario(nome_arquivo, codigo) == ERRO_CONFLITO_ID)
+int cadastrar_usuario(const char *nome_arquivo, USUARIO usuario) {
+	if(verificar_id_usuario(nome_arquivo, usuario.codigo) == ERRO_CONFLITO_ID)
 		return ERRO_CONFLITO_ID;
 
 	int retorno = SUCESSO;
@@ -125,10 +125,6 @@ int cadastrar_usuario(const char *nome_arquivo, unsigned int codigo, const char 
 		goto liberar_cabecalho;
 	}
 	
-	USUARIO usuario;
-	strncpy(usuario.nome, nome, MAX_NOME);
-	usuario.nome[MAX_NOME] = '\0';
-	usuario.codigo = codigo;
 	usuario.proximo = cabecalho->pos_cabeca;
 
 	if(cabecalho->pos_livre == -1) {

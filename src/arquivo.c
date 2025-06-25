@@ -246,17 +246,16 @@ int processar_lote(
                         }
 
                 } else if (linha[0] == 'U') {
-                        int codigo;
-                        char nome[MAX_NOME + 1];
+                        USUARIO usuario;
                         char nome_temp[MAX_BUFFER_TEMP];
 
-                        int lidos = sscanf(linha + 2, "%u;%255[^\n]", &codigo, nome_temp);
+                        int lidos = sscanf(linha + 2, "%u;%255[^\n]", &usuario.codigo, nome_temp);
 
                         trim(nome_temp);
-                        strncpy(nome, nome_temp, MAX_NOME);
-                        nome[MAX_NOME] = '\0';
+                        strncpy(usuario.nome, nome_temp, MAX_NOME);
+                        usuario.nome[MAX_NOME] = '\0';
 
-                        if (lidos != 2 || cadastrar_usuario(caminho_arquivo_usuario, codigo, nome) != SUCESSO) {
+                        if (lidos != 2 || cadastrar_usuario(caminho_arquivo_usuario, usuario) != SUCESSO) {
                                 printf("Erro ao processar usuário na linha %d: %s\n", numero_linha, linha);
                         }
 
