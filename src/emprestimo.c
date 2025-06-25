@@ -616,7 +616,7 @@ int listar_livros_emprestados(
                 printf("Nome do usuario: %s\n", no_usuario_atual.nome);
                 printf("Codigo de livro: %d\n", no_livro_atual.codigo);
                 printf("Titulo do livro: %s\n", no_livro_atual.titulo);
-                printf("Data de empréstimo: %s\n\n", no_emprestimo_atual.data_emprestimo);
+                printf("Data de emprestimo: %s\n\n", no_emprestimo_atual.data_emprestimo);
 
                 // ir para o próximo nó do empréstimo
                 posicao_atual_emprestimo = no_emprestimo_atual.proximo;

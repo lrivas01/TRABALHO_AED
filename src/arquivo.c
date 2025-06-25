@@ -250,7 +250,7 @@ int processar_lote(
                                 printf(": Campos incorretos\n");
                         }
                         if(r1 == ERRO_CONFLITO_ID)
-                                printf(": Código de livro já utilizado\n");
+                                printf(": Codigo de livro já utilizado\n");
 
                 } else if (linha[0] == 'U') {
                         USUARIO usuario;

@@ -318,7 +318,7 @@ int buscar_titulo_livro(const char *nome_arq, const char *titulo) {
         pos = livro.prox;
     }
 
-    printf("Livro com título \"%s\" não encontrado.\n", titulo);
+    printf("Livro com titulo \"%s\" não encontrado.\n", titulo);
     fclose(arq);
 
     return ERRO_ENCONTRAR_LIVRO;
