@@ -15,4 +15,5 @@ int caminho_termina_com_barra(const char* caminho);
 void normalizar_para_sep(char* caminho);
 void trim(char* str);
 unsigned int ler_unsigned_int_direto();
+void construir_caminho_completo(char* caminho_base, const char* nome_arquivo);
 #endif // UTILS_H

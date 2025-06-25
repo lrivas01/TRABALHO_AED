@@ -120,10 +120,10 @@ int buscar_titulo_livro(const char *nome_arq, const char *titulo);
 * Pré-condições:
 *   - O arquivo deve estar aberto para leitura
 *
- * Pós-condições:
- *   - Quantia de livros disponiveis é exibida
- *   - Retorna SUCESSO (0) em caso de sucesso
- *   - Retorna código de erro negativo se não encontrado ou ocorrer erro de leitura
+* Pós-condições:
+*   - Quantia de livros disponiveis é exibida
+*   - Retorna SUCESSO (0) em caso de sucesso
+*   - Retorna código de erro negativo se não encontrado ou ocorrer erro de leitura
 *
 */
 int calcular_total_livros(const char *nome_arq);

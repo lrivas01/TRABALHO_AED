@@ -33,6 +33,7 @@ void normalizar_para_sep(char* caminho) {
             caminho[i] = '/';
         }
     }
+#endif
 }
 
 
@@ -71,10 +72,21 @@ unsigned int ler_unsigned_int_direto() {
     return (unsigned int)valor;
 }
 
+void construir_caminho_completo(char* caminho_base, const char* nome_arquivo) {
+    normalizar_para_sep(caminho_base); // ← 1. Normaliza para o separador do sistema
 
-#endif
+    // 2. Adiciona a barra final se necessário
+    if (!caminho_termina_com_barra(caminho_base)) {
+    #ifdef _WIN32
+        strcat(caminho_base, "\\");
+    #else
+        strcat(caminho_base, "/");
+    #endif
+    }
+
+    // 3. Concatena o nome do arquivo
+    strcat(caminho_base, nome_arquivo);
 }
-
 
 void trim(char *str) {
     if (!str) return;

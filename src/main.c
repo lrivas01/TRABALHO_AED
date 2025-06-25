@@ -2,8 +2,6 @@
 #include"../include/arquivo.h"
 #include"../include/usuario.h"
 #include"../include/utils.h"
-#define MAX_CAMINHO 32768 //tamanho maximo + 1 que um caminho pode ter no windows, no linux o limite é menor
-
 #include<stdio.h>
 #include<string.h>
 
@@ -14,38 +12,44 @@ void opcao_cadastrar_livro (char* caminho_livros);
 void opcao_imprimir_livro(char* caminho_livros);
 void opcao_cadastrar_usuario (char* caminho_usuarios);
 void opcao_buscar_por_titulo (char *caminho_livros);
-void opcao_emprestar_livro(caminho_emprestimos,caminho_livros,caminho_usuarios);
-void opcao_devolver_livro();
+void opcao_emprestar_livro(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios);
+void opcao_devolver_livro(char* caminho_emprestimos, char* caminho_livros);
+void opcao_total_cadastrados(char *caminho_livros);
 
 int main () {
-    char diretorio[MAX_CAMINHO];
-    char caminho_livros[MAX_CAMINHO];
-    char caminho_usuarios[MAX_CAMINHO];
-    char caminho_emprestimos[MAX_CAMINHO];
+    char diretorio[MAX_PATH];
+    char caminho_livros[MAX_PATH];
+    char caminho_usuarios[MAX_PATH];
+    char caminho_emprestimos[MAX_PATH];
     int sucesso = 0;
 
     printf("------ SISTEMA BIBLIOTECA ------\n");
 
     do {
-        printf("Informe o diretório dos arquivos ou pressione Enter para usar './dados/': ");
-        fgets(diretorio, MAX_CAMINHO, stdin);
+        printf("Informe o diretório dos arquivos ou pressione Enter para usar diretório atual: ");
+        fgets(diretorio, MAX_PATH, stdin);
         diretorio[strcspn(diretorio, "\n")] = '\0';
 
         if (strlen(diretorio) == 0) {
-            strcpy(diretorio, ".");
+           		strcpy(diretorio, ".");
         }
 
-        snprintf(caminho_livros, MAX_CAMINHO, "%s/livro.dat", diretorio);
-        snprintf(caminho_usuarios, MAX_CAMINHO, "%s/usuario.dat", diretorio);
-        snprintf(caminho_emprestimos, MAX_CAMINHO, "%s/emprestimo.dat", diretorio);
+        strncpy(caminho_livros, diretorio, MAX_PATH - 1);
+		construir_caminho_completo(caminho_livros, "livro.dat");
+
+		strncpy(caminho_usuarios, diretorio, MAX_PATH - 1);
+		construir_caminho_completo(caminho_usuarios, "usuario.dat");
+
+		strncpy(caminho_emprestimos, diretorio, MAX_PATH - 1);
+		construir_caminho_completo(caminho_emprestimos, "emprestimo.dat");
 
         int r = inicializar_base_de_dados(diretorio);
         printf("---------codigo de r: %d--------\n", r);
         if (r < 0) {
-            printf("Não foi possível inicializar os arquivos no diretório '%s'.\n", diretorio);
-            printf("Verifique se o caminho existe e se há permissões de escrita/leitura.\n\n");
+            	printf("Não foi possível inicializar os arquivos no diretório '%s'.\n", diretorio);
+            	printf("Verifique se o caminho existe e se há permissões de escrita/leitura.\n\n");
         } else {
-            sucesso = 1;
+            	sucesso = 1;
         }
 
     } while (!sucesso);
@@ -70,8 +74,7 @@ int main () {
                     opcao_buscar_por_titulo(caminho_livros);
                     break;
                 case 5:
-                    if(calcular_total_livros(caminho_livros)!=0)//total de nós, nao e exemplares
-                    	printf("Erro ao calcular total de livros\n");
+                    opcao_total_cadastrados(caminho_livros);
                     break;
                 case 6:
                     opcao_cadastrar_usuario(caminho_usuarios);
@@ -168,17 +171,10 @@ void opcao_cadastrar_livro (char* caminho_livros) {
 
 void opcao_imprimir_livro(char* caminho_livros) {
     unsigned int codigo;
-    unsigned int resultado;
 
     printf("Digite o código do livro: ");
 
-    resultado = ler_unsigned_int_direto();
-
-    if (resultado < 0) {
-        printf("Erro na leitura da entrada!\n");
-        return;
-    }
-
+    codigo = ler_unsigned_int_direto();
 
     int retorno = imprimir_livro(caminho_livros, codigo);
 
@@ -222,7 +218,7 @@ void opcao_buscar_por_titulo (char *caminho_livros) {
 }
 
 
-void opcao_emprestar_livro (caminho_emprestimos,caminho_livros,caminho_usuarios) {
+void opcao_emprestar_livro (char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios) {
 	char buffer[MAX_DATA+1];
 	unsigned int codigo_usuario;
 	unsigned int codigo_livro;
@@ -240,8 +236,8 @@ void opcao_emprestar_livro (caminho_emprestimos,caminho_livros,caminho_usuarios)
         caminho_emprestimos,
         caminho_livros,
         caminho_usuarios,
-        codigo_usuarios,
-        codigo_livros,
+        codigo_usuario,
+        codigo_livro,
         buffer
 	) < 0)printf("Erro ao realizar o emprestimo do livro\n");
 
@@ -270,4 +266,12 @@ if(devolver_livro(
         buffer
 ) < 0 )printf("erro ao realizar a devolução do livro\n");
 
+}
+
+void opcao_total_cadastrados (char *caminho_livros) {
+			int x=calcular_total_livros(caminho_livros);
+            if(x<0)
+                    printf("Erro ao calcular total de livros\n");
+			else
+					printf("Quantia total de Livros cadastrados: %d\n",x);
 }

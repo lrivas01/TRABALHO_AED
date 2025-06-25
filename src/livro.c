@@ -156,7 +156,7 @@ int imprimir_livro(const char *nome_arq, int codigo) {
 
     //livro nao encontrado
     fclose(arq);
-    return ERRO_ENCONTRAR_LIVRO;
+	return ERRO_ENCONTRAR_LIVRO;
 }
 
 int listar_todos_livros(const char *nome_arq) {
