@@ -121,7 +121,7 @@ int cadastrar_livro(const char *nome_arquivo, LIVRO novo) {
 int imprimir_livro(const char *nome_arq, int codigo) {
     FILE *arq = fopen(nome_arq, "rb");
     if (!arq) {
-        return ERRO_ABRIR_ARQUIVO	;
+        return ERRO_ABRIR_ARQUIVO;
     }
 
     CABECALHO cab;
@@ -156,7 +156,7 @@ int imprimir_livro(const char *nome_arq, int codigo) {
 
     //livro nao encontrado
     fclose(arq);
-    return ERRO_ENCONTRAR_LIVRO;
+	return ERRO_ENCONTRAR_LIVRO;
 }
 
 int listar_todos_livros(const char *nome_arq) {
@@ -276,4 +276,42 @@ int buscar_titulo_livro(const char *nome_arq, const char *titulo) {
     fclose(arq);
 
     return ERRO_ENCONTRAR_LIVRO;
+}
+
+
+
+
+int calcular_total_livros(const char *nome_arq){
+    int total=0;
+    FILE *arq = fopen(nome_arq, "rb");
+    if (!arq) {
+        return ERRO_ABRIR_ARQUIVO	;
+    }
+
+    CABECALHO cab;
+    if (fread(&cab, sizeof(CABECALHO), 1, arq) != 1) {
+        fclose(arq);
+        return ERRO_LER_CABECALHO	;
+    }
+
+    int pos = cab.pos_cabeca;
+    LIVRO livro;
+    while (pos != -1) {
+        if (fseek(arq, sizeof(CABECALHO) + pos * sizeof(LIVRO), SEEK_SET) != 0) {
+            fclose(arq);
+            return ERRO_ARQUIVO_SEEK;
+        }
+
+        if (fread(&livro, sizeof(LIVRO), 1, arq) != 1) {
+            fclose(arq);
+            return ERRO_ARQUIVO_READ;
+        }
+
+        total++;
+
+        pos = livro.prox;
+    }
+    fclose(arq);
+    printf("Total de livros cadastrados: %d\n", total);
+    return 0;
 }
