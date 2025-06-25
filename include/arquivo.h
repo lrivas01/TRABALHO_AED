@@ -87,6 +87,37 @@ int cria_lista_vazia(FILE* arq);
  */
 int inicializar_base_de_dados(char* caminho_diretorio);
 
+/*
+ * processar_lote - le e executa comandos a partir de um arquivo texto de lote
+ *
+ * @caminho_arquivo_lote - caminho para o arquivo texto contendo comandos em lote
+ * @caminho_arquivo_emprestimo - caminho para o arquivo binario de emprestimos
+ * @caminho_arquivo_livro - caminho para o arquivo binario de livros
+ * @caminho_arquivo_usuario - caminho para o arquivo binario de usuarios
+ *
+ * Pre-condicoes:
+ *   - Os caminhos devem ser validos e os arquivos devem existir (ou ser criados se necessario).
+ *   - O arquivo de lote deve conter linhas com comandos iniciados por:
+ *       'L' para cadastro de livro
+ *       'U' para cadastro de usuario
+ *       'E' para emprestimo (e opcionalmente devolucao)
+ *   - Campos nas linhas devem seguir o formato esperado.
+ *
+ * Pos-condicoes:
+ *   - Os comandos sao processados sequencialmente:
+ *       - Linhas iniciadas por 'L' cadastram um livro.
+ *       - Linhas iniciadas por 'U' cadastram um usuario.
+ *       - Linhas iniciadas por 'E' realizam emprestimo, e devolucao se houver data.
+ *   - Informacoes sao normalizadas com trim e limitadas ao tamanho maximo de cada campo.
+ *   - Mensagens de erro sao impressas para entradas mal formatadas ou com conflitos de ID.
+ *   - Retorna SUCESSO (0) ao final do processamento, mesmo com erros parciais.
+ *
+ * Erros tratados internamente:
+ *   - ERRO_ABRIR_ARQUIVO (-10): erro ao abrir o arquivo de lote.
+ *   - ERRO_CAMPOS_INVALIDOS (-24): entrada mal formatada ou com campos ausentes.
+ *   - ERRO_CONFLITO_ID (-23): ID de livro ou usuario ja existente.
+ *   - Outros erros de leitura/escrita sao tratados internamente pelas funcoes chamadas.
+ */
 int processar_lote(
     const char* caminho_arquivo_lote,
     const char* caminho_arquivo_emprestimo,
