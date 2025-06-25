@@ -11,14 +11,12 @@ void limpar_enter (char *str);
 void limpar_buffer ();
 void exibir_menu ();
 
-void opcao_cadastrar_livro (char* caminho_livros);      //   NOTE: REVISADO
-void opcao_imprimir_livro(char* caminho_livros);        //   NOTE: REVISADO
-void opcao_cadastrar_usuario (char* caminho_usuarios);  //   NOTE: REVISADO
-void opcao_buscar_por_titulo (char *caminho_livros);    //   NOTE: REVISADO
-void opcao_emprestar_livro(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios);    // NOTE: REVISADO
-void opcao_devolver_livro(char* caminho_emprestimos, char* caminho_livros);                             // NOTE: REVISADO
-void opcao_total_cadastrados(char *caminho_livros);                                                     // NOTE: REVISADO
-void opcao_carregar_lote(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios);      // TODO: PRECISA SER FINALIZADO
+void opcao_cadastrar_livro (char* caminho_livros);
+void opcao_imprimir_livro(char* caminho_livros);
+void opcao_cadastrar_usuario (char* caminho_usuarios);
+void opcao_buscar_por_titulo (char *caminho_livros);
+void opcao_emprestar_livro(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios);
+void opcao_carregar_lote(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios);
 
 int main () {
         char diretorio[TAM_MAX_CAMINHO];
