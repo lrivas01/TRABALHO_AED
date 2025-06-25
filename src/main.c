@@ -119,7 +119,7 @@ void limpar_buffer() {
 
 void exibir_menu() {
         printf("\n====MENU PRINCIPAL====\n");
-        printf("1  - CADASTRAR LIVROS\n");
+        printf("1  - CADASTRAR LIVRO\n");
         printf("2  - IMPRIMIR DADOS DO LIVRO\n");
         printf("3  - LISTAR TODOS OS LIVROS\n");
         printf("4  - BUSCA POR TITULO\n");
@@ -136,7 +136,7 @@ void exibir_menu() {
 void opcao_cadastrar_livro(char* caminho_livros) {
         LIVRO livro;
 
-        printf("Codigo do livro: ");
+        printf("\nCodigo do livro: ");
         while ((livro.codigo = ler_unsigned_int_direto()) == 0) {
                 printf("Codigo invalido (deve ser um numero maior que zero)\n");
                 printf("Codigo do livro: ");
@@ -211,7 +211,7 @@ void opcao_imprimir_livro(char* caminho_livros) {
 void opcao_cadastrar_usuario (char* caminho_usuarios) {
         USUARIO usuario;
 
-        printf("Insira o nome do usuario: ");
+        printf("\nInsira o nome do usuario: ");
         fgets(usuario.nome, MAX_NOME, stdin);
         usuario.nome[strcspn(usuario.nome, "\n")] = '\0';
 
@@ -223,12 +223,12 @@ void opcao_cadastrar_usuario (char* caminho_usuarios) {
 
         int retorno;
         if((retorno = cadastrar_usuario(caminho_usuarios, usuario)) == 0) {
-                printf("Usuario cadastrado com sucesso!\n");
+                printf("\nUsuario cadastrado com sucesso!\n");
         }
         else {
-                printf("Falha ao cadastrar usuario\n");
+                printf("\nFalha ao cadastrar usuario\n");
                 if(retorno == ERRO_CONFLITO_ID)
-                        printf("Codigo de usuario informado ja esta registrado\n");
+                        printf("Codigo de usuario informado ja esta registrado\n\n");
         }
 }
 
@@ -236,7 +236,7 @@ void opcao_cadastrar_usuario (char* caminho_usuarios) {
 void opcao_buscar_por_titulo (char *caminho_livros) {
         char titulo[MAX_TITULO+1];
 
-        printf("Insira o nome do livro: ");
+        printf("\nInsira o nome do livro: ");
         fgets(titulo, MAX_TITULO+1, stdin);
         titulo[strcspn(titulo, "\n")] = '\0';
 
@@ -249,7 +249,7 @@ void opcao_emprestar_livro (char* caminho_emprestimos, char* caminho_livros, cha
 	unsigned int codigo_usuario;
 	unsigned int codigo_livro;
 	
-        printf("Digite o codigo do usuario: ");
+        printf("\nDigite o codigo do usuario: ");
 	while ((codigo_usuario = ler_unsigned_int_direto()) == 0) {
 	        printf("Codigo invalido (deve ser um numero maior que zero)\n");
 	        printf("Digite o codigo do usuario: ");
@@ -268,7 +268,9 @@ void opcao_emprestar_livro (char* caminho_emprestimos, char* caminho_livros, cha
 
         int res = 0;
         if((res = emprestar_livro(caminho_emprestimos, caminho_livros, caminho_usuarios, codigo_usuario, codigo_livro, data)) < 0)
-                printf("Erro ao realizar o emprestimo do livro\n");
+                printf("\nErro ao realizar o emprestimo do livro\n");
+        else
+                printf("\nLivro cadastrado com sucesso\n");
 
         if(res == ERRO_CONFLITO_ID)
                 printf("Livro ja emprestado a este usuario\n");
@@ -281,7 +283,7 @@ void opcao_devolver_livro (char* caminho_emprestimos, char*caminho_livros) {
 	unsigned int codigo_usuario;
 	unsigned int codigo_livro;
 
-	printf("Digite o codigo do usuario: ");
+	printf("\nDigite o codigo do usuario: ");
 	while ((codigo_usuario = ler_unsigned_int_direto()) == 0) {
 	        printf("Codigo invalido (deve ser um numero maior que zero)\n");
 	        printf("Digite o codigo do usuario: ");
@@ -301,6 +303,8 @@ void opcao_devolver_livro (char* caminho_emprestimos, char*caminho_livros) {
 
         if(devolver_livro(caminho_emprestimos, caminho_livros, codigo_usuario, codigo_livro, data ) < 0 )
                 printf("Erro ao realizar a devolucao do livro\n");
+        else
+                printf("Devolucao realizada com sucesso\n");
 }
 
 void opcao_total_cadastrados(char *caminho_livros) {
@@ -312,7 +316,7 @@ void opcao_total_cadastrados(char *caminho_livros) {
 
 void opcao_carregar_lote(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios) {
         char diretorio[TAM_MAX_CAMINHO];
-        printf("Informe o caminho para o arquivo contendo os registros\n");
+        printf("\nInforme o caminho para o arquivo contendo os registros\n");
         printf("Ha suporte para o formato \"./nome_exemplo.txt\" para indicar diretorio atual\n");
         fgets(diretorio, TAM_MAX_CAMINHO, stdin);
         diretorio[strcspn(diretorio, "\n")] = '\0';
@@ -320,7 +324,7 @@ void opcao_carregar_lote(char* caminho_emprestimos, char* caminho_livros, char* 
         int retorno = processar_lote(diretorio, caminho_emprestimos, caminho_livros, caminho_usuarios);
 
         if(retorno == ERRO_ABRIR_ARQUIVO)
-                printf("Nao foi possivel abrir o arquivo\n");
+                printf("\nNao foi possivel abrir o arquivo\n");
         else
-                printf("Carregamento concluido!\n");
+                printf("\nCarregamento concluido!\n");
 }
