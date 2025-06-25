@@ -48,7 +48,6 @@ int main () {
                 construir_caminho_completo(caminho_emprestimos, "emprestimo.dat");
 
                 int r = inicializar_base_de_dados(diretorio);
-                printf("---------codigo de r: %d--------\n", r);
                 if (r < 0) {
                         printf("Não foi possível inicializar os arquivos no diretório '%s'.\n", diretorio);
                         printf("Verifique se o caminho existe e se há permissões de escrita/leitura.\n\n");
