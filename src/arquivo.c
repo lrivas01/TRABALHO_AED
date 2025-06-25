@@ -264,14 +264,14 @@ int processar_lote(
 
                         int r2 = ERRO_CAMPOS_INVALIDOS;
                         if (lidos != 2 || (r2 = cadastrar_usuario(caminho_arquivo_usuario, usuario)) != SUCESSO) {
-                                printf("Erro ao processar usuário na linha %d", numero_linha);
+                                printf("Erro ao processar usuario na linha %d", numero_linha);
                         }
 
                         if(r2 == ERRO_CAMPOS_INVALIDOS) {
                                 printf(": Campos incorretos\n");
                         }
                         if(r2 == ERRO_CONFLITO_ID)
-                                printf(": Código de usuário já utilizado\n");
+                                printf(": Codigo de usuario ja utilizado\n");
 
                 } else if (linha[0] == 'E') {
                         int cod_usuario, cod_livro;
@@ -288,7 +288,7 @@ int processar_lote(
                         strncpy(data_dev, data_dev_temp, MAX_DATA);
                         data_dev[MAX_DATA] = '\0';
                         if (lidos < 3) {
-                                printf("Erro ao processar empréstimo na linha %d: Campos incorretos\n", numero_linha);
+                                printf("Erro ao processar emprestimo na linha %d: Campos incorretos\n", numero_linha);
                         }
                         else {
                                 int r3 = ERRO_CAMPOS_INVALIDOS;
@@ -305,7 +305,7 @@ int processar_lote(
                                         printf("Erro ao emprestar livro na linha %d", numero_linha);
                                 }
                                 if(r3 == ERRO_CONFLITO_ID)
-                                        printf(": Códigos de livro e usuário já utilizados\n");
+                                        printf(": Codigos de livro e usuario ja utilizados\n");
                                 // Se foi fornecida a data de devolução
                                 if (lidos == 4 && strlen(data_dev) > 0) {
                                         if (

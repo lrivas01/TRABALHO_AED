@@ -190,7 +190,7 @@ int imprimir_livro(const char *nome_arq, int codigo) {
         }
 
         if (livro.codigo == codigo) {
-            printf("Código: %d\nTítulo: %s\nAutor: %s\nEditora: %s\nEdicao: %d\nAno: %d\nExemplares: %d\n\n",
+            printf("Codigo: %d\nTitulo: %s\nAutor: %s\nEditora: %s\nEdicao: %d\nAno: %d\nExemplares: %d\n\n",
                    livro.codigo, livro.titulo, livro.autor, livro.editora,
                    livro.edicao, livro.ano, livro.exemplares);
             fclose(arq);
@@ -234,7 +234,7 @@ int listar_todos_livros(const char *nome_arq) {
             return ERRO_ARQUIVO_READ;
         }
 
-        printf("Código: %d | Título: %s | Autor: %s | Ano: %d | Exemplares: %d\n",
+        printf("Codigo: %d | Titulo: %s | Autor: %s | Ano: %d | Exemplares: %d\n",
                livro.codigo, livro.titulo, livro.autor, livro.ano, livro.exemplares);
         pos = livro.prox;
     }
@@ -271,7 +271,7 @@ int buscar_autor_livro(const char *nome_arq, const char *autor) {
             }
 
             if (strcmp(livro.autor, autor) == 0) {
-                printf("Título: %s | Código: %d\n", livro.titulo, livro.codigo);
+                printf("Titulo: %s | Codigo: %d\n", livro.titulo, livro.codigo);
                 encontrado = 1;
             }
 
@@ -308,7 +308,7 @@ int buscar_titulo_livro(const char *nome_arq, const char *titulo) {
         }
 
         if (strcmp(livro.titulo, titulo) == 0) {
-            printf("Código: %d\nTítulo: %s\nAutor: %s\nEditora: %s\nEdicao: %d\nAno: %d\nExemplares: %d\n\n",
+            printf("Codigo: %d\nTitulo: %s\nAutor: %s\nEditora: %s\nEdicao: %d\nAno: %d\nExemplares: %d\n\n",
                    livro.codigo, livro.titulo, livro.autor, livro.editora,
                    livro.edicao, livro.ano, livro.exemplares);
             fclose(arq);

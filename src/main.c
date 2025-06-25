@@ -30,7 +30,7 @@ int main () {
         printf("------ SISTEMA BIBLIOTECA ------\n");
 
         do {
-                printf("Informe o diretório dos arquivos ou pressione Enter para usar diretório atual: ");
+                printf("Informe o diretorio dos arquivos ou pressione Enter para usar diretorio atual: ");
                 fgets(diretorio, TAM_MAX_CAMINHO, stdin);
                 diretorio[strcspn(diretorio, "\n")] = '\0';
 
@@ -49,8 +49,8 @@ int main () {
 
                 int r = inicializar_base_de_dados(diretorio);
                 if (r < 0) {
-                        printf("Não foi possível inicializar os arquivos no diretório '%s'.\n", diretorio);
-                        printf("Verifique se o caminho existe e se há permissões de escrita/leitura.\n\n");
+                        printf("Nao foi possível inicializar os arquivos no diretorio '%s'.\n", diretorio);
+                        printf("Verifique se o caminho existe e se ha permissoes de escrita/leitura.\n\n");
                 }
                 else {
                         sucesso = 1;
@@ -60,7 +60,7 @@ int main () {
         int opcao;
         do {
                 exibir_menu();
-                printf("Escolha uma opção: \n");
+                printf("Escolha uma opcao: \n");
 
                 scanf("%d", &opcao);
                 getchar();
@@ -100,7 +100,7 @@ int main () {
                                 printf("Encerrando o programa.\n");
                                 break;
                         default:
-                                printf("Opção inválida. Tente novamente.\n");
+                                printf("Opcao invalida. Tente novamente.\n");
                 }
 
         } while (opcao != 0);
@@ -200,7 +200,7 @@ void opcao_imprimir_livro(char* caminho_livros) {
         int retorno = imprimir_livro(caminho_livros, codigo);
         if (retorno != 0) {
                 if (retorno == ERRO_ENCONTRAR_LIVRO) {
-                        printf("\nLivro com código \"%d\" não encontrado.\n", codigo);
+                        printf("\nLivro com codigo \"%d\" não encontrado.\n", codigo);
                 }
                 else {
                         printf("\nErro ao buscar livro\n");
@@ -300,7 +300,7 @@ void opcao_devolver_livro (char* caminho_emprestimos, char*caminho_livros) {
         data[MAX_DATA] = '\0';
 
         if(devolver_livro(caminho_emprestimos, caminho_livros, codigo_usuario, codigo_livro, data ) < 0 )
-                printf("Erro ao realizar a devolução do livro\n");
+                printf("Erro ao realizar a devolucao do livro\n");
 }
 
 void opcao_total_cadastrados(char *caminho_livros) {
