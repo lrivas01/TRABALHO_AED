@@ -8,7 +8,6 @@
 #include <string.h>
 
 void limpar_enter (char *str);
-void limpar_buffer ();
 void exibir_menu ();
 
 void opcao_cadastrar_livro (char* caminho_livros);
@@ -108,15 +107,29 @@ int main () {
         return SUCESSO;
 }
 
+/*
+ * limpar_enter - remover caractere '\n' de string
+ *
+ * @str - string para remover '\n'
+ *
+ * Pré-condições:
+ *      - str deve ser uma string terminada em '\0'.
+ * Pós-condições:
+ *      - Se houver um caractere '\n' na string, será substituído por '\0'.
+ *      - A string será truncada na primeira ocorrência de '\n'.
+ */
 void limpar_enter(char *str) {
         str[strcspn(str, "\n")] = '\0';
 }
 
-void limpar_buffer() {
-        int c;
-        while ((c = getchar()) != '\n' && c != EOF);
-}
-
+/*
+ * exibir_menu - exibe o menu principal do programa
+ *
+ * Pré-condições:
+ *      Nenhuma.
+ * Pós-condições:
+ *      - Menu principal será exibido na saída padrão
+ */
 void exibir_menu() {
         printf("\n====MENU PRINCIPAL====\n");
         printf("1  - CADASTRAR LIVRO\n");
@@ -133,6 +146,17 @@ void exibir_menu() {
         printf("========================\n");
 }
 
+/*
+ * opcao_cadastrar_livro - interage com usuário para cadastrar novo livro
+ *
+ * @caminho_livros - caminho completo para o arquivo binário que armazena livros.
+ *
+ * Pré-condições:
+ *              - O caminho para o arquivo deve ser válido.
+ *              - O arquivo pode ser aberto em modo leitura e escrita.
+ * Pós-condições:
+ *              - Um novo livro é adicionado ao arquivo, se todos os dados forem válidos
+ */
 void opcao_cadastrar_livro(char* caminho_livros) {
         LIVRO livro;
 
@@ -188,6 +212,17 @@ void opcao_cadastrar_livro(char* caminho_livros) {
         }
 }
 
+/*
+ * opcao_imprimir_livro - interage com o usuário para imprimir informações sobre livro
+ *
+ * @caminho_livros - caminho completo para arquivo binário que armazena livros
+ *
+ * Pré-condições:
+ *              - Caminho para arquivo deve ser válido e ser acessível em modo leitura e escrita.
+ *              - Deve ser um arquivo inicializado (com cabeçalho).
+ * Pós-condições:
+ *              - Imprime informações sobre livro, se encontrado
+ */
 void opcao_imprimir_livro(char* caminho_livros) {
         unsigned int codigo;
 
@@ -208,6 +243,17 @@ void opcao_imprimir_livro(char* caminho_livros) {
         }
 }
 
+/*
+ * opcao_cadastrar_usuario - interage com o usuário para cadastrar usuário
+ *
+ * @caminho_usuarios - caminho completo para arquivo binário que armazena usuários
+ *
+ * Pré-condições:
+ *              - Caminho para o arquivo deve ser válido e pode ser aberto em modo leitura e escrita.
+ *              - Arquivo deve ser inicializado (conter cabeçalho).
+ * Pós-condições:
+ *              - Usuário é registrado se todas as informações forem válidas.
+ */
 void opcao_cadastrar_usuario (char* caminho_usuarios) {
         USUARIO usuario;
 
@@ -232,7 +278,17 @@ void opcao_cadastrar_usuario (char* caminho_usuarios) {
         }
 }
 
-
+/*
+ * opcao_buscar_por_titulo - interage com o usuário para realizar busca de livro por título
+ *
+ * @caminho_livros - caminho completo para arquivo binário que armazena livros
+ *
+ * Pré-condições:
+ *              - Arquivo deve ser válido e pode ser aberto em leitura e escrita.
+ *              - Arquivo deve ser inicializado (conter cabeçalho).
+ * Pós-condições:
+ *              - Livro buscado é exibido se for encontrado pelo título.
+ */
 void opcao_buscar_por_titulo (char *caminho_livros) {
         char titulo[MAX_TITULO+1];
 
@@ -243,7 +299,20 @@ void opcao_buscar_por_titulo (char *caminho_livros) {
         buscar_titulo_livro(caminho_livros, titulo);
 }
 
-
+/*
+ * opcao_emprestar_livro - interage com o usuário para realizar empréstimo de livro
+ *
+ * @caminho_emprestimos - caminho completo para arquivo binário de empréstimos.
+ * @caminho_livros - caminho completo para arquivo binário de livros.
+ * @caminho_usuarios - caminho completo para arquivo binário de usuários.
+ *
+ * Pré-condições:
+ *              - Arquivos devem ser válidos com permissões de leitura e escrita.
+ *              - Arquivos devem estar inicializados (com cabeçalho).
+ * Pós-condições:
+ *              - Empréstimo é registrado se dados fornecidos forem corretos.
+ *              - Quantidade de exemplares do livro emprestado é decrementada.
+ */
 void opcao_emprestar_livro (char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios) {
         char data[MAX_DATA+1];
 	unsigned int codigo_usuario;
@@ -278,6 +347,19 @@ void opcao_emprestar_livro (char* caminho_emprestimos, char* caminho_livros, cha
                 printf("Exemplares do livro esgotados\n");
 }
 
+/*
+ * opcao_devolver_livro - interage com o usuário para registrar devolução de livro
+ *
+ * @caminho_emprestimos - caminho completo para arquivo binário de empréstimos.
+ * @caminho_livros - caminho completo para arquivo binário de livros.
+ *
+ * Pré-condições:
+ *              - Arquivos devem ser válidos e podem ser acessados em leitura e escrita.
+ *              - Arquivos devem estar inicializados (com cabeçalho).
+ * Pós-condições:
+ *              - Devolução de livro é registrada se todos os dados forem corretos.
+ *              - Quantidade de exemplares do livro devolvido é incrementada.
+ */
 void opcao_devolver_livro (char* caminho_emprestimos, char*caminho_livros) {
 	char data[MAX_DATA + 1];
 	unsigned int codigo_usuario;
@@ -307,6 +389,17 @@ void opcao_devolver_livro (char* caminho_emprestimos, char*caminho_livros) {
                 printf("Devolucao realizada com sucesso\n");
 }
 
+/*
+ * opcao_total_cadastrados - exibe quantidade total de livros cadastrados
+ *
+ * @caminho_livros - caminho completo para arquivo binário de livros
+ *
+ * Pré-condições:
+ *              - Arquivo deve ser válido e possuir permissões de leitura.
+ *              - Arquivo deve estar inicializado (com cabeçalho).
+ * Pós-condições:
+ *              - Quantidade total de livros cadastrados é exibida.
+ */
 void opcao_total_cadastrados(char *caminho_livros) {
         int quantidade_total_livros = calcular_total_livros(caminho_livros);
         if(quantidade_total_livros!=0) {
@@ -314,6 +407,20 @@ void opcao_total_cadastrados(char *caminho_livros) {
         }
 }
 
+/*
+ * opcao_carregar_lote - interage com usuário para carregar informações em lote
+ *
+ * @caminho_emprestimos - caminho completo para arquivo binário de empréstimos
+ * @caminho_livros - caminho completo para arquivo binário de livros
+ * @caminho_usuarios - caminho completo para arquivo de usuários
+ *
+ * Pré-condições:
+ *              - Arquivos devem ser válidos e possuir permissões de leitura e escrita.
+ *              - Arquivos devem estar inicializados (com cabeçalho).
+ * Pós-condições:
+ *              - Registro de livros, usuários e empréstimos é feito se estiverem no
+ *              formato correto.
+ */
 void opcao_carregar_lote(char* caminho_emprestimos, char* caminho_livros, char* caminho_usuarios) {
         char diretorio[TAM_MAX_CAMINHO];
         printf("\nInforme o caminho para o arquivo contendo os registros\n");
