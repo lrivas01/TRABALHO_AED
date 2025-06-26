@@ -166,7 +166,7 @@ void opcao_cadastrar_livro(char* caminho_livros) {
                 printf("Codigo do livro: ");
         }
 
-        printf("\nTítulo: ");
+        printf("\nTitulo: ");
         fgets(livro.titulo, MAX_TITULO, stdin);
         limpar_enter(livro.titulo);
 
