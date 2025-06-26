@@ -36,11 +36,11 @@ Exibe os livros atualmente emprestados (sem data de devolução), com código e 
 ### 10. Carregar Arquivo
 Lê um arquivo `.txt` com dados de livros, usuários e empréstimos, e adiciona ao sistema.
 
-L; <codigo >; < titulo >; < autor >; < editora >; < edicao >; < ano >; < exemplares >
+L;\<codigo>;\<titulo>;\<autor>;\<editora>;\<edicao>;\<ano>;\<exemplares>
 
-U ; < codigo >; < nome >
+U;\<codigo>;\<nome>
 
-E; < codigo usuario >; < codigo livro >; < data emprestimo >; < data devolucao >
+E;\<codigo_usuario>;\<codigo_livro>;\<data_emprestimo>;\<data_devolucao>
 
 Com L,U,E significando respectivamente:
 
@@ -49,6 +49,7 @@ L: livro
 U: usuário
 
 E: empréstimo
+
 ## Observações Técnicas
 
 - Todas as informações são salvas em arquivos binários com listas encadeadas.
